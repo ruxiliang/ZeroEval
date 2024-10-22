@@ -119,11 +119,11 @@ If you find ZeroEval useful, please cite it as follows in your publication:
     author = {Lin, Bill Yuchen},
     month = jul,
     title = {{ZeroEval: A Unified Framework for Evaluating Language Models}},
-    url = {https://github.com/yuchenlin/ZeroEval},
+    url = {https://github.com/WildEval/ZeroEval},
     year = {2024}
 }
 ```
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yuchenlin/ZeroEval&type=Date)](https://star-history.com/#yuchenlin/ZeroEval&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=WildEval/ZeroEval&type=Date)](https://star-history.com/#WildEval/ZeroEval&Date)
