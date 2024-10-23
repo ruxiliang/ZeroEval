@@ -11,6 +11,39 @@
     "Reason Lens": "1565.88"
   },
   {
+    "Model": "o1-preview-2024-09-12-v2",
+    "Mode": "greedy",
+    "Puzzle Acc": "70.57",
+    "Cell Acc": "74.54",
+    "No answer": "0.45",
+    "Easy Puzzle Acc": "97.98",
+    "Hard Puzzle Acc": "59.87",
+    "Total Puzzles": 880,
+    "Reason Lens": "1548.00"
+  },
+  {
+    "Model": "o1-mini-2024-09-12-v3",
+    "Mode": "greedy",
+    "Puzzle Acc": "59.70",
+    "Cell Acc": "70.32",
+    "No answer": "1.00",
+    "Easy Puzzle Acc": "86.07",
+    "Hard Puzzle Acc": "49.44",
+    "Total Puzzles": 1000,
+    "Reason Lens": "1166.38"
+  },
+  {
+    "Model": "o1-mini-2024-09-12-v2",
+    "Mode": "greedy",
+    "Puzzle Acc": "56.80",
+    "Cell Acc": "69.87",
+    "No answer": "1.30",
+    "Easy Puzzle Acc": "82.86",
+    "Hard Puzzle Acc": "46.67",
+    "Total Puzzles": 1000,
+    "Reason Lens": "1164.95"
+  },
+  {
     "Model": "o1-mini-2024-09-12",
     "Mode": "greedy",
     "Puzzle Acc": "52.60",
@@ -473,17 +506,6 @@
     "Reason Lens": "1078.29"
   },
   {
-    "Model": "Meta-Llama-3.1-8B-Instruct",
-    "Mode": "greedy",
-    "Puzzle Acc": "12.80",
-    "Cell Acc": "13.68",
-    "No answer": "61.50",
-    "Easy Puzzle Acc": "43.57",
-    "Hard Puzzle Acc": "0.83",
-    "Total Puzzles": 1000,
-    "Reason Lens": "1043.90"
-  },
-  {
     "Model": "gemma-2-9b-it",
     "Mode": "greedy",
     "Puzzle Acc": "12.80",
@@ -493,6 +515,17 @@
     "Hard Puzzle Acc": "1.53",
     "Total Puzzles": 1000,
     "Reason Lens": "849.84"
+  },
+  {
+    "Model": "Meta-Llama-3.1-8B-Instruct",
+    "Mode": "greedy",
+    "Puzzle Acc": "12.80",
+    "Cell Acc": "13.68",
+    "No answer": "61.50",
+    "Easy Puzzle Acc": "43.57",
+    "Hard Puzzle Acc": "0.83",
+    "Total Puzzles": 1000,
+    "Reason Lens": "1043.90"
   },
   {
     "Model": "Qwen2.5-7B-Instruct",
