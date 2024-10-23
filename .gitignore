@@ -210,3 +210,5 @@ result_dirs/gsm/gemma-2-27b-it@vllm.json
 result_dirs/zebra-grid/gemma-2-27b-it@vllm.json
 result_dirs_parsed/
 state_of_limit/task_summary_*.json
+result_dirs/zebra-grid/bon_32_v2/gpt-4o-mini-2024-07-18.json
+result_dirs/zebra-grid/bon_64/gpt-4o-mini-2024-07-18.json
