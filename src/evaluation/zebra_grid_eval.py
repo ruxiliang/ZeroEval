@@ -294,11 +294,11 @@ def gen_results(run_name_folders):
 
 if __name__ == "__main__":
     run_name_folders = {
-        # "greedy": "result_dirs/zebra-grid",
-        # "sampling": "result_dirs/zebra-grid/sampling",
-        "bon_32": "result_dirs/zebra-grid/bon_32",
-        "bon_32_v2": "result_dirs/zebra-grid/bon_32_v2",
-        "bon_64": "result_dirs/zebra-grid/bon_64",
+        "greedy": "result_dirs/zebra-grid",
+        # # "sampling": "result_dirs/zebra-grid/sampling",
+        # "bon_32": "result_dirs/zebra-grid/bon_32",
+        # "bon_32_v2": "result_dirs/zebra-grid/bon_32_v2",
+        # "bon_64": "result_dirs/zebra-grid/bon_64",
     } 
     load_private_solutions()
     gen_results(run_name_folders)
