@@ -13,13 +13,13 @@
   {
     "Model": "o1-preview-2024-09-12-v2",
     "Mode": "greedy",
-    "Puzzle Acc": "70.57",
-    "Cell Acc": "74.54",
-    "No answer": "0.45",
-    "Easy Puzzle Acc": "97.98",
-    "Hard Puzzle Acc": "59.87",
-    "Total Puzzles": 880,
-    "Reason Lens": "1548.00"
+    "Puzzle Acc": "70.40",
+    "Cell Acc": "74.18",
+    "No answer": "0.40",
+    "Easy Puzzle Acc": "98.21",
+    "Hard Puzzle Acc": "59.58",
+    "Total Puzzles": 1000,
+    "Reason Lens": "1559.71"
   },
   {
     "Model": "o1-mini-2024-09-12-v3",
