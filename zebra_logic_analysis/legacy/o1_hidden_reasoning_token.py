@@ -5,12 +5,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import matplotlib.ticker as ticker
+import matplotlib.font_manager as fm
 
-# load the file from "result_dirs_parsed/zebra-grid/o1-mini-2024-09-12-v3.json"
-
-with open("result_dirs_parsed/zebra-grid/o1-preview-2024-09-12-v2.json") as f:
-    data = json.load(f)
+input_file_name = "result_dirs_parsed/zebra-grid/o1-preview-2024-09-12-v2.json"
 output_file_name = "zebra_logic_analysis/o1_preview_hidden_reasoning_vs_search_space_size_with_curve.png"
+
+# input_file_name = "result_dirs_parsed/zebra-grid/o1-mini-2024-09-12-v3.json"
+# output_file_name = "zebra_logic_analysis/o1_mini_hidden_reasoning_vs_search_space_size_with_curve.png"
+
+with open(input_file_name) as f:
+    data = json.load(f)
+
 
 
 
@@ -79,14 +85,46 @@ df = pd.DataFrame({
 solved_status = [d["solved"] for d in data]
 df['solved'] = solved_status
 
+
+
+# Plot the data with different colors for solved and unsolved
+# Set a modern font style
+plt.rcParams.update({
+    'font.family': 'sans-serif', 
+    'font.sans-serif': ['DejaVu Sans'],
+    'font.size': 16  # Increase the font size
+})
+
 # Plot the data with different colors for solved and unsolved
 plt.figure(figsize=(10, 6))
-sns.scatterplot(data=df, x='search_space_size', y='hidden_reasoning_token', hue='solved', palette={True: 'blue', False: 'red'})
+sns.scatterplot(data=df, x='search_space_size', y='hidden_reasoning_token', 
+                hue='solved', style='solved', 
+                palette={True: '#4a90e2', False: '#d9534f'},  # Blue for Correct, Red for Incorrect
+                markers={True: 'o', False: 'X'},  # Square for Correct, Triangle for Incorrect
+                hue_order=[True, False], legend='full',
+                s=100)  # Increase the symbol size
+# Update legend labels
+plt.legend(title='Solution Status', labels=['Incorrect', 'Correct'])
+
 plt.xscale('log')  # Use a logarithmic scale for the x-axis due to potentially large search space sizes
 plt.xlabel('Search Space Size (log scale)')
-plt.ylabel('Hidden Reasoning Token')
-plt.title('Hidden Reasoning Token vs. Search Space Size')
+plt.ylabel('# Hidden CoT Tokens')
+# plt.title('Hidden Reasoning Token vs. Search Space Size')
+plt.ylim(0, 20000)  # Set the y-axis range from 0 to 20000
 plt.grid(True)
+
+
+# # Set more fine-grained intervals for the x-axis
+# x_ticks = np.logspace(np.floor(np.log10(df['search_space_size'].min())), 
+#                       np.ceil(np.log10(df['search_space_size'].max())), 
+#                       num=20)  # Adjust 'num' for more or fewer ticks
+# plt.xticks(x_ticks, labels=[f"{int(tick):,}" for tick in x_ticks])
+
+
+
+# # Set more fine-grained intervals for the x-axis with scientific notation
+# plt.gca().xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f'$10^{{{int(np.log10(x))}}}$'))
+
 
 # Fit a polynomial curve to the data (e.g., degree 2)
 log_x = np.log10(df['search_space_size'])  # Log-transform the x-axis data
@@ -100,27 +138,9 @@ y_fit = poly(x_fit)
 # Plot the curve
 plt.plot(10**x_fit, y_fit, color='green', label='Polynomial Fit (degree 2)', linewidth=2)  # Convert x_fit back to original scale
 
-
-
-# # Filter the DataFrame for solved data points
-# solved_df = df[df['solved'] == True]
-
-# # Fit a polynomial curve to the solved data (e.g., degree 2)
-# log_x_solved = np.log10(solved_df['search_space_size'])  # Log-transform the x-axis data for solved points
-# coeffs_solved = np.polyfit(log_x_solved, solved_df['hidden_reasoning_token'], deg=2)  # Fit a polynomial of degree 2
-# poly_solved = np.poly1d(coeffs_solved)
-
-# # Generate values for the solved curve
-# x_fit_solved = np.linspace(log_x_solved.min(), log_x_solved.max(), 500)  # Generate 500 points between min and max of log_x_solved
-# y_fit_solved = poly_solved(x_fit_solved)
-
-# # Plot the solved curve
-# plt.plot(10**x_fit_solved, y_fit_solved, color='blue', label='Polynomial Fit for Solved (degree 2)', linewidth=2)
-
-
-
-plt.legend()
-plt.savefig(output_file_name)
-plt.show()
+ 
+plt.savefig(output_file_name, dpi=300)
+print(f"Saved the plot to {output_file_name}")
+# plt.show()
 
  
