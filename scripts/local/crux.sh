@@ -1,6 +1,11 @@
+
+
 # bash zero_eval_api.sh -d crux -f openai -m openai/gpt-3.5-turbo-0125 -p gpt-3.5-turbo-0125 -s 1
 # bash zero_eval_api.sh -d crux -f openai -m openai/gpt-4o-mini-2024-07-18 -p gpt-4o-mini-2024-07-18 -s 8
 # bash zero_eval_api.sh -d crux -f openai -m openai/gpt-4o-2024-05-13 -p gpt-4o-2024-05-13 -s 8
+
+
+
 
 # bash zero_eval_api.sh -d crux -f openai -m openai/gpt-4-0314 -p gpt-4-0314 -s 8
 # bash zero_eval_api.sh -d crux -f openai -m openai/gpt-4-turbo-2024-04-09 -p gpt-4-turbo-2024-04-09 -s 8 

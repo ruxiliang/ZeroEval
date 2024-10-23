@@ -231,7 +231,7 @@ if __name__ == "__main__":
 
     if args.engine == "vllm":
 
-        sampling_params = SamplingParams(top_p=args.top_p, temperature=args.temperature, repetition_penalty=args.repetition_penalty, max_tokens=args.max_tokens,
+        sampling_params = SamplingParams(top_p=args.top_p, temperature=args.temperature,            repetition_penalty=args.repetition_penalty, max_tokens=args.max_tokens,
                                          stop=stop_words, stop_token_ids=stop_token_ids, include_stop_str_in_output=include_stop_str_in_output, n=args.num_outputs)
         for cur_id in tqdm(range(0, len(todo_inputs), args.batch_size), desc=f"Generating {args.model_name} from {args.start_index} to {args.end_index}"):
             batch_inputs = todo_inputs[cur_id:cur_id+args.batch_size]
@@ -292,6 +292,7 @@ if __name__ == "__main__":
                     "temperature": args.temperature,
                     "max_tokens": args.max_tokens,
                     "stop": stop_words,
+                    "n": args.num_outputs  # Pass the num_outputs argument here
                 }
                 result = api(**openai_args)
                 # for o1 

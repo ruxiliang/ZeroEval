@@ -18,9 +18,10 @@ TOP_P=1.0
 rp=1.0
 engine_name="openai"
 MAX_TOKENS=4096; 
+num_outputs=1  # New default value
 
 # Parse named arguments
-while getopts ":d:m:p:s:r:t:o:e:f:b:x:" opt; do
+while getopts ":d:m:p:s:r:t:o:e:f:b:x:n:" opt; do  # Added 'n' for num_outputs
   case $opt in
     d) DATA_NAME="$OPTARG"
     ;;
@@ -44,6 +45,8 @@ while getopts ":d:m:p:s:r:t:o:e:f:b:x:" opt; do
     ;;
     x) MAX_TOKENS="$OPTARG"
     ;;
+    n) num_outputs="$OPTARG"  # New case for num_outputs
+    ;;
     \?) echo "Invalid option -$OPTARG" >&2
     ;;
   esac
@@ -51,7 +54,7 @@ done
 
 # Check if required arguments are provided
 if [ -z "$DATA_NAME" ] || [ -z "$model_name" ] || [ -z "$model_pretty_name" ] || [ -z "$n_shards" ]; then
-  echo "Usage: $0 -d DATA_NAME -m model_name -p model_pretty_name -s n_shards [-r run_name] [-t TEMP] [-o TOP_P] [-e rp] [-f engine_name]"
+  echo "Usage: $0 -d DATA_NAME -m model_name -p model_pretty_name -s n_shards [-r run_name] [-t TEMP] [-o TOP_P] [-e rp] [-f engine_name] [-n num_outputs]"
   exit 1
 fi
 
@@ -83,6 +86,7 @@ if [ $n_shards -eq 1 ]; then
         --run_name $run_name \
         --top_p $TOP_P --temperature $TEMP --repetition_penalty $rp \
         --batch_size $batch_size --max_tokens $MAX_TOKENS \
+        --num_outputs $num_outputs \
         --output_folder $output_dir/  
 
 elif [ $n_shards -gt 1 ]; then
@@ -100,6 +104,7 @@ elif [ $n_shards -gt 1 ]; then
             --model_pretty_name $model_pretty_name \
             --top_p $TOP_P --temperature $TEMP --repetition_penalty $rp \
             --batch_size $batch_size --max_tokens $MAX_TOKENS \
+            --num_outputs $num_outputs \
             --output_folder $shards_dir/ \
               &
     done 
