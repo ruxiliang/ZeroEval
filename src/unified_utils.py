@@ -114,7 +114,8 @@ def save_outputs(args, id_strs, outputs, chat_history, metadata, model_inputs, f
         for key in metadata:
             if key in output_item:
                 continue 
-            output_item[key] = metadata[key][ind]
+            if ind < len(metadata[key]):
+                output_item[key] = metadata[key][ind]
         output_item = result_format(output_item, args)
         formatted_outputs.append(output_item)  
     with open(filepath, "w") as f:
@@ -165,6 +166,8 @@ def retry_handler(retry_limit=10):
                         if "invalid" in str(e).lower():
                             print("Invalid request, returning.")
                             retried = retry_limit
+                            if kwargs["model"].startswith("o1-"):
+                                return ['API Error: this query is blocked by APIs. ' + str(e)], -1
                             return ['API Error: this query is blocked by APIs. ' + str(e)]
                     else:
                         err_msg = str(e)
@@ -260,6 +263,7 @@ def openai_chat_request(
             contents.append(choice['message']['content'])
     else:
         nvidia_mode = False 
+        o1_mode = False
         # for version > 1.0
         if "deepseek" in model:
             assert os.environ.get("DEEPSEEK_API_KEY") is not None, "Please set DEEPSEEK_API_KEY in the environment variables."
@@ -307,6 +311,7 @@ def openai_chat_request(
         else: 
             # print(f"Requesting chat completion from OpenAI API with model {model}")
             if model.startswith("o1-"):
+                o1_mode = True
                 if messages[0]["role"] == "system":
                     messages = messages[1:]
                 response = client.chat.completions.create(
@@ -315,10 +320,12 @@ def openai_chat_request(
                     messages=messages,  
                     top_p=top_p,
                     n=n,
+                    # temperature=temperature,
                     frequency_penalty=frequency_penalty,
                     presence_penalty=presence_penalty, 
                     **kwargs,
                 )
+                hidden_reasoning_tokens = response.usage.completion_tokens_details.reasoning_tokens
             else:
                 response = client.chat.completions.create(
                     model=model, 
@@ -343,6 +350,8 @@ def openai_chat_request(
                 else:
                     raise ValueError(f"OpenAI Finish Reason Error: {choice.finish_reason}")
             contents.append(choice.message.content.strip())
+    if o1_mode:
+        return contents, hidden_reasoning_tokens
     return contents
 
 def together_chat_request(

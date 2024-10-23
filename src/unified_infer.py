@@ -206,12 +206,16 @@ if __name__ == "__main__":
             formatted_outputs = json.load(f)
         for output_item in formatted_outputs:
             outputs.append([output_item["output"]] if type(output_item["output"]) == str else output_item["output"])
+            if args.model_name.startswith("openai/o1-"):
+                if "hidden_reasoning_token" not in metadata:
+                    metadata["hidden_reasoning_token"] = []
+                metadata["hidden_reasoning_token"].append(output_item["hidden_reasoning_token"])
     num_skipped = len(outputs)
     print(f"We skipped the first {num_skipped} examples")
 
 
     # Load the existing data from the cache_filepath
-    cache_outputs = {}
+    cache_outputs = {} 
     if args.cache_filepath is not None:
         if os.path.exists(args.cache_filepath):
             with open(args.cache_filepath) as f:
@@ -220,6 +224,7 @@ if __name__ == "__main__":
                 # if output_item["output"]  is a list and the first string is not empty 
                 if type(output_item["output"]) == list and len(output_item["output"]) > 0 and len(output_item["output"][0]) > 0:
                     cache_outputs[output_item["session_id"]] = output_item
+
         print(f"Loaded {len(cache_outputs)} non-empty outputs from the cache file: {args.cache_filepath}")
 
     todo_inputs = model_inputs[num_skipped:]
@@ -267,7 +272,11 @@ if __name__ == "__main__":
             # check if in the cache
             if current_id_str in cache_outputs:
                 print(f"Using cache from {args.cache_filepath} for {current_id_str}")
-                outputs.append(cache_outputs[current_id_str]["output"])
+                cache_item = cache_outputs[current_id_str]
+                outputs.append(cache_item["output"])
+                if "hidden_reasoning_token" not in metadata:
+                    metadata["hidden_reasoning_token"] = []
+                metadata["hidden_reasoning_token"].append(cache_item["hidden_reasoning_token"])
             else:
                 openai_msg = [{"role":"system", "content":"You are a helpful AI assistant."}] 
                 for i, chat_item in enumerate(chat):
@@ -285,7 +294,16 @@ if __name__ == "__main__":
                     "stop": stop_words,
                 }
                 result = api(**openai_args)
-                outputs.append(result)
+                # for o1 
+                if args.model_name.startswith("openai/o1-"):
+                    content, hidden_reasoning_token = result
+                    # print(f"hidden_reasoning_token: {hidden_reasoning_token}")
+                    if "hidden_reasoning_token" not in metadata:
+                        metadata["hidden_reasoning_token"] = []
+                    metadata["hidden_reasoning_token"].append(hidden_reasoning_token)
+                else:
+                    content = result 
+                outputs.append(content)
             save_outputs(args, id_strs, outputs, chat_history, metadata, model_inputs, filepath)
 
     elif args.engine == "together":

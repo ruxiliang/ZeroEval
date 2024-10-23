@@ -9,8 +9,7 @@ This repository aims to evaluate instruction-tuned LLMs for their zero-shot perf
 
 ## Todo
 
-- [ ] Support new tasks (GPPA, AIME, etc.)
-- [ ] Add private tests 
+- [ ] Support new tasks (GPPA, AIME, etc.) 
 - [ ] Prefix-prefill for open models such that the parsing is easier
 - [ ] Add other formatting options (e.g. markup language instead of json, etc.)
 
@@ -104,12 +103,12 @@ python src/evaluation/summarize.py
 python src/evaluation/math_eval.py gsm 
  -->
 
-
+<!-- 
 ### Changelogs 
 
 - 08/02/2024: added Gemini 1.5 Pro Exp 0801 and CRUX results 
 - 07/31/2024: added Meta-Llama-3.1-70B-Instruct and gemma-2-2b-it 
-- 07/29/2024: added Llama-3.1-8B, Mistral-Large-2, and deepseek-coder-v2-0724 
+- 07/29/2024: added Llama-3.1-8B, Mistral-Large-2, and deepseek-coder-v2-0724  -->
 
 ## Citation
 If you find ZeroEval useful, please cite it as follows in your publication:
@@ -127,3 +126,15 @@ If you find ZeroEval useful, please cite it as follows in your publication:
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=WildEval/ZeroEval&type=Date)](https://star-history.com/#WildEval/ZeroEval&Date)
+
+
+<!-- 
+
+
+
+bash zero_eval_api.sh -f openai -d zebra-grid -m openai/o1-mini-2024-09-12 -p o1-mini-2024-09-12-v2 -s 4
+wait 
+bash zero_eval_api.sh -f openai -d zebra-grid -m openai/o1-preview-2024-09-12 -p o1-preview-2024-09-12-v2 -s 4
+wait 
+
+ -->
