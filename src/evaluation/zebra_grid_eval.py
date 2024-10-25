@@ -19,18 +19,28 @@ def load_private_solutions():
     return 
 
 
+# Cache to store loaded data
+file_cache = {}
 
 def eval_model(model, filepath, mode="best_of_n", max_N=None):
-    global private_solutions
-    with open(filepath, "r") as f:
-        print(f"Processing {filepath}")
-        data = json.load(f)
+    global private_solutions, file_cache
+
+    # Check if the data is already cached
+    if filepath in file_cache:
+        print(f"Using cached data for {filepath}")
+        data = file_cache[filepath]
+    else:
+        with open(filepath, "r") as f:
+            print(f"Loading {filepath}")
+            data = json.load(f)
+            # Cache the loaded data
+            file_cache[filepath] = data
 
     solved_puzzles = 0 
     num_total_puzzles = len(data)
     correct_cells = 0
     total_cells = 0
-    no_asnwer = 0 
+    no_answer = 0 
 
     num_total_puzzles_by_size = defaultdict(int)
     solved_puzzles_by_size = defaultdict(int) 
@@ -60,7 +70,7 @@ def eval_model(model, filepath, mode="best_of_n", max_N=None):
 
         # if all the predictions are empty, then skip the current puzzle, and add no answer count
         if not predictions:
-            no_asnwer += 1
+            no_answer += 1
             continue
 
         # Limit the number of predictions to max_N if specified
@@ -130,7 +140,7 @@ def eval_model(model, filepath, mode="best_of_n", max_N=None):
             # Iterate over each house and column in the solution table
             for house in solution_table:
                 for column in solution_table[house]:
-                    # Count occurrences of each value at the current position across all predictions
+                    # Count occurrences of each value a``````t the current position across all predictions
                     value_counter = Counter()
                     for prediction in predictions:
                         if house in prediction["solution"] and column in prediction["solution"][house]:
@@ -236,7 +246,7 @@ def eval_model(model, filepath, mode="best_of_n", max_N=None):
     result["Mode"] = model.split("%")[1]
     result["Puzzle Acc"] = f"{solved_puzzles/num_total_puzzles*100:.2f}"
     result["Cell Acc"] = f"{correct_cells/total_cells*100:.2f}"
-    result["No answer"] = f"{no_asnwer/num_total_puzzles*100:.2f}"
+    result["No answer"] = f"{no_answer/num_total_puzzles*100:.2f}"
     result["Easy Puzzle Acc"] = f"{easy_solved_puzzles/easy_total_puzzles*100:.2f}" 
     result["Hard Puzzle Acc"] = f"{hard_solved_puzzles/hard_total_puzzles*100:.2f}"
     result["Total Puzzles"] = num_total_puzzles
@@ -247,36 +257,66 @@ def eval_model(model, filepath, mode="best_of_n", max_N=None):
     return result, parsed_results  # Return parsed_results along with the result
 
 
-def gen_results(run_name_folders): 
+def gen_results(run_name_folders, bon=False): 
     model_results = load_model_results(run_name_folders)
 
-    columns = ["Model", "Mode", "N_Mode", "N_Size", "Puzzle Acc", "Easy Puzzle Acc", "Hard Puzzle Acc", "Cell Acc",  "No answer",  "Total Puzzles", "Reason Lens"]
-    rows = []
-    for model_name, filepath in model_results.items(): 
-        
-        # result, parsed_results = eval_model(model_name, filepath, mode="majority_of_n", max_N=32)
-        result, parsed_results = eval_model(model_name, filepath, mode="best_of_n", max_N=64)
-        # result, parsed_results = eval_model(model_name, filepath, mode="most_common_of_n", max_N=64)
-
-        # result, parsed_results = eval_model(model_name, filepath, mode="longest_of_n", max_N=32)
-        # result, parsed_results = eval_model(model_name, filepath, mode="shortest_of_n", max_N=32)
-        # result, parsed_results = eval_model(model_name, filepath, mode="median_of_n", max_N=32)
-        
-        # result, parsed_results = eval_model(model_name, filepath, mode="least_common_of_n", max_N=32)
-        # result, parsed_results = eval_model(model_name, filepath, mode="middle_common_of_n", max_N=32)
-        
-        
-        # Save the parsed_results to the same filepath with a new prefix
+    def save_parsed_results(filepath, parsed_results, bon=bon):
         parsed_results_filepath = filepath.replace("result_dirs", "result_dirs_parsed")
         # Create folders if they don't exist
         os.makedirs(os.path.dirname(parsed_results_filepath), exist_ok=True)
+        if bon:
+            # remove the outputs from the parsed results 
+            parsed_results_no_output = []
+            for parsed_item in parsed_results:
+                parsed_item_no_output = parsed_item.copy()
+                if "output" in parsed_item_no_output:
+                    del parsed_item_no_output["output"]
+                parsed_results_no_output.append(parsed_item_no_output)
+            parsed_results = parsed_results_no_output
         # Save parsed results
         with open(parsed_results_filepath, "w") as f:
             json.dump(parsed_results, f, indent=2)
-        rows.append(result)
+            print(f"Saved to {f.name}")
 
-    # sort the rows by puzzle accuracy
-    rows = sorted(rows, key=lambda x: -float(x["Puzzle Acc"]))
+    columns = ["Model", "Mode", "N_Mode", "N_Size", "Puzzle Acc", "Easy Puzzle Acc", "Hard Puzzle Acc", "Cell Acc",  "No answer",  "Total Puzzles", "Reason Lens"]
+    rows = []
+
+    for model_name, filepath in model_results.items(): 
+        if "bon_" in filepath:
+            # result, parsed_results = eval_model(model_name, filepath, mode="majority_of_n", max_N=32)
+            # result, parsed_results = eval_model(model_name, filepath, mode="most_common_of_n", max_N=64) 
+            # result, parsed_results = eval_model(model_name, filepath, mode="longest_of_n", max_N=32)
+            # result, parsed_results = eval_model(model_name, filepath, mode="shortest_of_n", max_N=32)
+            # result, parsed_results = eval_model(model_name, filepath, mode="median_of_n", max_N=32)
+            # result, parsed_results = eval_model(model_name, filepath, mode="least_common_of_n", max_N=32)
+            # result, parsed_results = eval_model(model_name, filepath, mode="middle_common_of_n", max_N=32)
+            for K in [4, 8, 16, 32, 64, 128, 256]:
+                if "gpt-4o-2024-08-06" in model_name and K > 128:
+                    continue 
+                result, parsed_results = eval_model(model_name, filepath, mode="best_of_n", max_N=K)
+                save_parsed_results(filepath.replace(".json", f".best_of_n.K={K}.json"), parsed_results) 
+                rows.append(result)
+
+                result, parsed_results = eval_model(model_name, filepath, mode="majority_of_n", max_N=K)
+                save_parsed_results(filepath.replace(".json", f".majority_of_n.K={K}.json"), parsed_results) 
+                rows.append(result)
+
+                result, parsed_results = eval_model(model_name, filepath, mode="most_common_of_n", max_N=K)
+                save_parsed_results(filepath.replace(".json", f".most_common_of_n.K={K}.json"), parsed_results) 
+                rows.append(result)
+        else:
+            # Save the parsed_results to the same filepath with a new prefix 
+            result, parsed_results = eval_model(model_name, filepath, mode="single")
+            save_parsed_results(filepath, parsed_results) 
+            rows.append(result)
+    if "bon_" in filepath: 
+        # rows = sorted(rows, key=lambda x: -float(x["Puzzle Acc"]))
+        # first sort by N_Mode and then sort by N_Size 
+        # Sort the rows first by model name and then "N_Mode" and then by "N_Size"
+        rows = sorted(rows, key=lambda x: (x["Model"], x["N_Mode"], x["N_Size"]))
+    else:
+        # sort the rows by puzzle accuracy
+        rows = sorted(rows, key=lambda x: -float(x["Puzzle Acc"]))
     # Convert rows to the expected format for tabulate
     table_data = [[row[col] for col in columns] for row in rows]
 
@@ -293,13 +333,12 @@ def gen_results(run_name_folders):
 
 
 if __name__ == "__main__":
+    
     run_name_folders = {
-        "greedy": "result_dirs/zebra-grid",
-        # # "sampling": "result_dirs/zebra-grid/sampling",
-        # "bon_32": "result_dirs/zebra-grid/bon_32",
-        # "bon_32_v2": "result_dirs/zebra-grid/bon_32_v2",
-        # "bon_64": "result_dirs/zebra-grid/bon_64",
+        # "greedy": "result_dirs/zebra-grid",
+        # "sampling": "result_dirs/zebra-grid/sampling",
+        "bon_all": "result_dirs/zebra-grid/bon_all", 
     } 
     load_private_solutions()
-    gen_results(run_name_folders)
+    gen_results(run_name_folders, bon=True)
 
