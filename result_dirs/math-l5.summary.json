@@ -40,6 +40,14 @@
     "Reason Lens": "881.54"
   },
   {
+    "Model": "claude-3-5-sonnet-20241022",
+    "Mode": "greedy",
+    "Acc": "59.36",
+    "No answer": "0.00",
+    "Total": 721,
+    "Reason Lens": "769.58"
+  },
+  {
     "Model": "gpt-4o-2024-08-06",
     "Mode": "greedy",
     "Acc": "55.34",

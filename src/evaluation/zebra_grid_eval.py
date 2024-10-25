@@ -335,10 +335,10 @@ def gen_results(run_name_folders, bon=False):
 if __name__ == "__main__":
     
     run_name_folders = {
-        # "greedy": "result_dirs/zebra-grid",
+        "greedy": "result_dirs/zebra-grid",
         # "sampling": "result_dirs/zebra-grid/sampling",
-        "bon_all": "result_dirs/zebra-grid/bon_all", 
+        # "bon_all": "result_dirs/zebra-grid/bon_all", 
     } 
     load_private_solutions()
-    gen_results(run_name_folders, bon=True)
+    gen_results(run_name_folders, bon=False)
 

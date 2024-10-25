@@ -65,6 +65,19 @@
     "N_Size": 1
   },
   {
+    "Model": "claude-3-5-sonnet-20241022",
+    "Mode": "greedy",
+    "Puzzle Acc": "36.20",
+    "Cell Acc": "54.27",
+    "No answer": "0.00",
+    "Easy Puzzle Acc": "91.07",
+    "Hard Puzzle Acc": "14.86",
+    "Total Puzzles": 1000,
+    "Reason Lens": "861.18",
+    "N_Mode": "single",
+    "N_Size": 1
+  },
+  {
     "Model": "claude-3-5-sonnet-20240620",
     "Mode": "greedy",
     "Puzzle Acc": "33.40",

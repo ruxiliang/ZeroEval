@@ -6,11 +6,12 @@
 
 |              Model               |  Mode  |  Acc  |  No answer  |  Total  |  Reason Lens  |
 |----------------------------------|--------|-------|-------------|---------|---------------|
+|    claude-3-5-sonnet-20241022    | greedy | 96.66 |      0      |  1319   |    352.89     |
 |        gpt-4o-2024-08-06         | greedy | 96.21 |      0      |  1319   |    462.06     |
 |        o1-mini-2024-09-12        | greedy | 96.06 |      0      |  1319   |    335.77     |
 |  Llama-3.1-405B-Inst@hyperbolic  | greedy | 95.98 |    0.08     |  1319   |    421.83     |
-| Llama-3.1-405B-Inst-fp8@together | greedy | 95.91 |    0.08     |  1319   |    365.07     |
 |  Llama-3.1-405B-Inst@sambanova   | greedy | 95.91 |    0.08     |  1319   |    464.76     |
+| Llama-3.1-405B-Inst-fp8@together | greedy | 95.91 |    0.08     |  1319   |    365.07     |
 |    claude-3-5-sonnet-20240620    | greedy | 95.6  |      0      |  1319   |    465.19     |
 |      claude-3-opus-20240229      | greedy | 95.6  |      0      |  1319   |    410.62     |
 |         Mistral-Large-2          | greedy | 95.53 |      0      |  1319   |    391.07     |
@@ -25,8 +26,8 @@
 |    Meta-Llama-3-70B-Instruct     | greedy | 93.03 |      0      |  1319   |    352.05     |
 |        Qwen2-72B-Instruct        | greedy | 92.65 |      0      |  1319   |    375.96     |
 |        deepseek-v2.5-0908        | greedy | 92.49 |      0      |  1319   |    490.46     |
-|     claude-3-sonnet-20240229     | greedy | 91.51 |      0      |  1319   |    762.69     |
 |      deepseek-v2-coder-0724      | greedy | 91.51 |      0      |  1319   |    494.62     |
+|     claude-3-sonnet-20240229     | greedy | 91.51 |      0      |  1319   |    762.69     |
 |         gemini-1.5-flash         | greedy | 91.36 |      0      |  1319   |    344.61     |
 |          gemma-2-27b-it          | greedy | 90.22 |      0      |  1319   |    364.68     |
 |     claude-3-haiku-20240307      | greedy | 88.78 |      0      |  1319   |    587.65     |

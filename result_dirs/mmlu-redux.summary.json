@@ -8,6 +8,14 @@
     "Reason Lens": "557.91"
   },
   {
+    "Model": "claude-3-5-sonnet-20241022",
+    "Mode": "greedy",
+    "Acc": "88.91",
+    "No answer": "0.00",
+    "Total": 2778,
+    "Reason Lens": "787.31"
+  },
+  {
     "Model": "chatgpt-4o-latest-24-09-07",
     "Mode": "greedy",
     "Acc": "88.88",
@@ -112,20 +120,20 @@
     "Reason Lens": "626.06"
   },
   {
-    "Model": "Mistral-Large-2",
-    "Mode": "greedy",
-    "Acc": "82.97",
-    "No answer": "0.14",
-    "Total": 2778,
-    "Reason Lens": "490.94"
-  },
-  {
     "Model": "Meta-Llama-3.1-70B-Instruct",
     "Mode": "greedy",
     "Acc": "82.97",
     "No answer": "1.26",
     "Total": 2778,
     "Reason Lens": "668.14"
+  },
+  {
+    "Model": "Mistral-Large-2",
+    "Mode": "greedy",
+    "Acc": "82.97",
+    "No answer": "0.14",
+    "Total": 2778,
+    "Reason Lens": "490.94"
   },
   {
     "Model": "gemini-1.5-pro",
