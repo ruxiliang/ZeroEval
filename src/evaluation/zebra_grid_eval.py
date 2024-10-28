@@ -67,24 +67,47 @@ def eval_model(model, filepath, mode="best_of_n", max_N=None):
         # Read and Parse the predictions from model output
         predictions = [extract_last_complete_json(output) for output in item["output"]]
         predictions = [p for p in predictions if p is not None and "solution" in p and p["solution"] is not None]
-
+        
         # if all the predictions are empty, then skip the current puzzle, and add no answer count
         if not predictions:
             no_answer += 1
+            # TODO: also add an item to the parsed results with no answer
+            parsed_item = item.copy()
+            parsed_item["reasoning"] = ""
+            parsed_item["correct_cells"] = 0
+            parsed_item["total_cells"] = this_total_cells
+            parsed_item["solved"] = False 
+            parsed_item["parsed"] = False
+            parsed_results.append(parsed_item)
             continue
-
+        
         # Limit the number of predictions to max_N if specified
         if max_N is not None:
             predictions = predictions[:max_N]
  
 
         n_size = len(predictions)  # Capture the number of predictions
+        
+
 
         if n_size == 1:
             mode = "single"
             # Single output case
             prediction_table = predictions[0]["solution"]
             reason = predictions[0].get("reasoning", "") 
+        elif mode == "rm_bon":
+            # there are reward model scores in the output
+            # the item contains two new keys: rm_scores, rm
+            # rm_scores is a list of scores for each output in the same order 
+            # we should select the output with the highest score
+            max_score = float("-inf")
+            best_prediction = None
+            for prediction, score in zip(predictions, item["rm_scores"]):
+                if score > max_score:
+                    max_score = score
+                    best_prediction = prediction
+            prediction_table = best_prediction["solution"]
+            reason = best_prediction.get("reasoning", "") 
         elif mode == "best_of_n":
             # Best of N: Choose the prediction with the maximum number of correct cells 
             max_correct_cells = 0
@@ -107,7 +130,6 @@ def eval_model(model, filepath, mode="best_of_n", max_N=None):
                     best_prediction = prediction
             prediction_table = best_prediction["solution"]
             reason = best_prediction.get("reasoning", "")
-
         elif mode == "majority_of_n":
             # Majority of N: Perform majority voting for each cell
             prediction_table = {}
@@ -225,7 +247,7 @@ def eval_model(model, filepath, mode="best_of_n", max_N=None):
         parsed_item["correct_cells"] = this_correct_cells
         parsed_item["total_cells"] = this_total_cells
         parsed_item["solved"] = this_correct_cells == this_total_cells
-        
+        parsed_item["parsed"] = True 
         parsed_results.append(parsed_item)
 
     # # print the success rate by size; order the dict by size first  
@@ -282,7 +304,7 @@ def gen_results(run_name_folders, bon=False):
     rows = []
 
     for model_name, filepath in model_results.items(): 
-        if "bon_" in filepath:
+        if bon and "bon_" in filepath or "rm_" in filepath:
             # result, parsed_results = eval_model(model_name, filepath, mode="majority_of_n", max_N=32)
             # result, parsed_results = eval_model(model_name, filepath, mode="most_common_of_n", max_N=64) 
             # result, parsed_results = eval_model(model_name, filepath, mode="longest_of_n", max_N=32)
@@ -290,20 +312,26 @@ def gen_results(run_name_folders, bon=False):
             # result, parsed_results = eval_model(model_name, filepath, mode="median_of_n", max_N=32)
             # result, parsed_results = eval_model(model_name, filepath, mode="least_common_of_n", max_N=32)
             # result, parsed_results = eval_model(model_name, filepath, mode="middle_common_of_n", max_N=32)
-            for K in [4, 8, 16, 32, 64, 128, 256]:
+            for K in [1, 4, 8, 16, 32, 64, 128, 256]:
                 if "gpt-4o-2024-08-06" in model_name and K > 128:
                     continue 
-                result, parsed_results = eval_model(model_name, filepath, mode="best_of_n", max_N=K)
-                save_parsed_results(filepath.replace(".json", f".best_of_n.K={K}.json"), parsed_results) 
+                if "rm_32" in filepath and K > 32:
+                    continue
+                result, parsed_results = eval_model(model_name, filepath, mode="rm_bon", max_N=K)
+                save_parsed_results(filepath.replace(".json", f".rm_bon.K={K}.json"), parsed_results) 
                 rows.append(result)
 
-                result, parsed_results = eval_model(model_name, filepath, mode="majority_of_n", max_N=K)
-                save_parsed_results(filepath.replace(".json", f".majority_of_n.K={K}.json"), parsed_results) 
-                rows.append(result)
+                # result, parsed_results = eval_model(model_name, filepath, mode="best_of_n", max_N=K)
+                # save_parsed_results(filepath.replace(".json", f".best_of_n.K={K}.json"), parsed_results) 
+                # rows.append(result)
 
-                result, parsed_results = eval_model(model_name, filepath, mode="most_common_of_n", max_N=K)
-                save_parsed_results(filepath.replace(".json", f".most_common_of_n.K={K}.json"), parsed_results) 
-                rows.append(result)
+                # result, parsed_results = eval_model(model_name, filepath, mode="majority_of_n", max_N=K)
+                # save_parsed_results(filepath.replace(".json", f".majority_of_n.K={K}.json"), parsed_results) 
+                # rows.append(result)
+
+                # result, parsed_results = eval_model(model_name, filepath, mode="most_common_of_n", max_N=K)
+                # save_parsed_results(filepath.replace(".json", f".most_common_of_n.K={K}.json"), parsed_results) 
+                # rows.append(result)
         else:
             # Save the parsed_results to the same filepath with a new prefix 
             result, parsed_results = eval_model(model_name, filepath, mode="single")
@@ -335,10 +363,11 @@ def gen_results(run_name_folders, bon=False):
 if __name__ == "__main__":
     
     run_name_folders = {
-        "greedy": "result_dirs/zebra-grid",
+        # "greedy": "result_dirs/zebra-grid",
         # "sampling": "result_dirs/zebra-grid/sampling",
         # "bon_all": "result_dirs/zebra-grid/bon_all", 
+        "rm": "result_dirs/zebra-grid/rm_32", 
     } 
     load_private_solutions()
-    gen_results(run_name_folders, bon=False)
+    gen_results(run_name_folders, bon=True)
 

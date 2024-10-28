@@ -211,3 +211,5 @@ result_dirs/zebra-grid/gemma-2-27b-it@vllm.json
 result_dirs_parsed/
 state_of_limit/task_summary_*.json
 result_dirs/zebra-grid/bon_*
+
+result_dirs/zebra-grid/rm_32/

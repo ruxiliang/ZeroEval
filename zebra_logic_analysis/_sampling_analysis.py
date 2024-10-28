@@ -32,7 +32,8 @@ def compute_puzzle_accuracy_by_size(bon_files, K, mode):
                         if solved:
                             accuracy_by_size[size_label]["correct"] += 1
                         break
-
+    
+    print(f"Accuracy by size for K={K}, mode={mode}, bon_files={bon_files}:")
     for size_label, counts in accuracy_by_size.items():
         total = counts["total"]
         correct = counts["correct"]
@@ -44,10 +45,14 @@ def compute_puzzle_accuracy_by_size(bon_files, K, mode):
 
 # Load bon files
 base_path = "result_dirs_parsed/zebra-grid/bon_all"
-modes = ["best_of_n", "most_common_of_n"]
+modes = ["best_of_n", "most_common_of_n", "rm_bon"]
 models = ["gpt-4o-2024-08-06", "gpt-4o-mini-2024-07-18"]
-K_values = [1, 4, 8, 16, 32, 64, 128]
-
+# Update the K_values and modes definitions
+K_values_by_mode = {
+    "best_of_n": [1, 4, 8, 16, 32, 64, 128],
+    "most_common_of_n": [1, 4, 8, 16, 32, 64, 128],
+    "rm_bon": [1, 4, 8, 16, 32]
+}
 # Add this mapping dictionary after the existing model definitions
 model_name_mapping = {
     "gpt-4o-2024-08-06": "gpt-4o",
@@ -61,13 +66,26 @@ accuracies = {size: {model_name_mapping[model]: {mode: [] for mode in modes} for
 
 for model in models:
     for mode in modes:
-        for K in K_values:
-            file_name = f"{model}.{mode}.K={K}.json"
-            file_path = os.path.join(base_path, file_name)
-            if os.path.exists(file_path):
-                accuracy_by_size = compute_puzzle_accuracy_by_size([file_path], K, mode)
-                for size_label in accuracies:
-                    accuracies[size_label][model_name_mapping[model]][mode].append(accuracy_by_size[size_label]["correct"] / accuracy_by_size[size_label]["total"] * 100 if accuracy_by_size[size_label]["total"] > 0 else 0)
+        for K in K_values_by_mode[mode]:
+            if mode in ["best_of_n", "most_common_of_n"]:
+                file_name = f"{model}.{mode}.K={K}.json"
+                file_path = os.path.join(base_path, file_name)
+                if os.path.exists(file_path):
+                    accuracy_by_size = compute_puzzle_accuracy_by_size([file_path], K, mode)
+                    for size_label in accuracies:
+                        accuracies[size_label][model_name_mapping[model]][mode].append(accuracy_by_size[size_label]["correct"] / accuracy_by_size[size_label]["total"] * 100 if accuracy_by_size[size_label]["total"] > 0 else 0)
+            else:
+                file_name = f"{model}_rm_scores.{mode}.K={K}.json"
+                file_path = os.path.join("result_dirs_parsed/zebra-grid/rm_32", file_name)
+                if os.path.exists(file_path):
+                    accuracy_by_size = compute_puzzle_accuracy_by_size([file_path], K, mode)
+                    for size_label in accuracies:
+                        accuracies[size_label][model_name_mapping[model]][mode].append(accuracy_by_size[size_label]["correct"] / accuracy_by_size[size_label]["total"] * 100 if accuracy_by_size[size_label]["total"] > 0 else 0)
+
+
+
+
+
 
 # Add new models
 additional_models = ["o1-preview-2024-09-12-v2", "o1-mini-2024-09-12-v3"]
@@ -111,32 +129,37 @@ colors = {
     "o1-preview": "#9370DB",  # Brighter purple
     "o1-mini": "#A0522D"       # Lighter shade of brown
 }
-markers = {'gpt-4o': 'o', 'gpt-4o-mini': 's'}
-linestyles = {"most_common_of_n": "-", "best_of_n": "dotted"}
+markers = {'gpt-4o': 'o', 'gpt-4o-mini': '<'}
+linestyles = {"most_common_of_n": "-", "best_of_n": "dotted", "rm_bon": "dashdot"}
 
 legend_handles = []
 legend_labels = []
 
 # Define custom y-axis limits for each subplot
-y_limits = [(20, 100), (0, 100), (0, 100), (0, 40)]
+y_limits = [(0, 100), (0, 100), (0, 100), (0, 40)]
 
+ 
 for ax, size_label, ylim in zip(axes.flatten(), size_labels, y_limits):
     for model in models:
         mapped_model = model_name_mapping[model]
         for mode in modes:
-            line, = ax.plot(K_values, accuracies[size_label][mapped_model][mode], 
-                    color=colors[mapped_model], 
-                    marker=markers[mapped_model],
-                    linestyle=linestyles[mode],
-                    linewidth=2
-            )
+            if len(accuracies[size_label][mapped_model][mode]) > 0:
+                line, = ax.plot(K_values_by_mode[mode], 
+                        accuracies[size_label][mapped_model][mode], 
+                        color=colors[mapped_model], 
+                        marker=markers[mapped_model],
+                        linestyle=linestyles[mode],
+                        linewidth=2
+                )
             
             if ax == axes[0, 0]:
                 legend_handles.append(line)
-                mode_str = mode.replace("best_of_n", "oracle")
-                mode_str = mode_str.replace("most_common_of_n", "voted")
+                mode_str = mode.replace("best_of_n", "BoN-Oracle")
+                mode_str = mode_str.replace("rm_bon", "BoN-RM")
+                mode_str = mode_str.replace("most_common_of_n", "Majority")
                 legend_labels.append(f"{mapped_model} {mode_str}")
-    
+
+
     for i, model in enumerate(additional_models):
         mapped_model = model_name_mapping[model]
         line = ax.axhline(y=additional_model_accuracies[mapped_model][size_label], 
@@ -152,12 +175,12 @@ for ax, size_label, ylim in zip(axes.flatten(), size_labels, y_limits):
     
     
     if ax not in [axes[0, 0], axes[0, 1]]:  # Skip xlabel for the first two subplots
-        ax.set_xlabel("Number of Samples", fontsize=25)
+        ax.set_xlabel(r"$\mathbf{Number\ of\ Samples}$", fontsize=25)
     if ax not in [axes[0, 1], axes[1, 1]]:  # Skip ylabel for the second and fourth subplots
         ax.set_ylabel("Accuracy (%)", fontsize=25)
     ax.set_xscale('log', base=2)
-    ax.set_xticks(K_values)
-    ax.set_xticklabels(K_values)
+    ax.set_xticks(K_values_by_mode["best_of_n"])
+    ax.set_xticklabels(K_values_by_mode["best_of_n"])
     ax.tick_params(axis='both', which='major', labelsize=22)
     ax.grid(True)
     ax.set_ylim(ylim[0], ylim[1])  # Set custom y-axis limits for each subplot
@@ -171,8 +194,8 @@ for ax, size_label, ylim in zip(axes.flatten(), size_labels, y_limits):
 
 # After the plotting loop, modify the legend order
 new_order = [
-    "o1-preview (ref)",  "gpt-4o oracle", "gpt-4o-mini oracle", 
-    "o1-mini (ref)", "gpt-4o voted", "gpt-4o-mini voted"
+    "o1-preview (ref)",  "gpt-4o BoN-Oracle", "gpt-4o BoN-RM",  "gpt-4o Majority",
+    "o1-mini (ref)",   "gpt-4o-mini BoN-Oracle", "gpt-4o-mini BoN-RM", "gpt-4o-mini Majority",
 ]
 # Reorder the legend_handles and legend_labels
 reordered_handles = []
@@ -187,10 +210,10 @@ legend_handles = reordered_handles
 legend_labels = reordered_labels
 
 # Update the legend creation for each subplot
-axes[0, 0].legend(legend_handles, legend_labels, loc='lower right', ncol=2, fontsize=24, bbox_to_anchor=(1, 0))
+axes[0, 0].legend(legend_handles, legend_labels, loc='lower right', ncol=2, fontsize=22.5, bbox_to_anchor=(1, 0))
 # axes[0, 1].legend(legend_handles, legend_labels, loc='upper left', ncol=1, fontsize=18, bbox_to_anchor=(0, 1))
-axes[1, 0].legend(legend_handles, legend_labels, loc='upper center', ncol=2, fontsize=24, bbox_to_anchor=(0.5, 1))
-axes[1, 1].legend(legend_handles, legend_labels, loc='upper center', ncol=2, fontsize=24, bbox_to_anchor=(0.5, 1))
+axes[1, 0].legend(legend_handles, legend_labels, loc='upper center', ncol=2, fontsize=22.5, bbox_to_anchor=(0.5, 1))
+axes[1, 1].legend(legend_handles, legend_labels, loc='upper center', ncol=2, fontsize=22.5, bbox_to_anchor=(0.5, 1))
 
 plt.tight_layout()
 
