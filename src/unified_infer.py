@@ -39,8 +39,11 @@ def parse_args():
     parser.add_argument('--start_index',default=0, type=int) # 0 means from the beginning of the list
     parser.add_argument('--end_index',default=-1, type=int) # -1 means to the end of the list
     parser.add_argument('--filepath',default="auto", type=str)
-
+    
     parser.add_argument('--cache_filepath', default=None, type=str)
+
+    parser.add_argument('--follow_up_mode', default="N/A", type=str) # N/A means not a follow up 
+    parser.add_argument('--follow_up_file', default=None, type=str) # if you have an existing file
 
     parser.add_argument('--overwrite', action='store_true')
     parser.add_argument('--no_repeat_ngram_size', default=0, type=int)
@@ -137,6 +140,9 @@ if __name__ == "__main__":
     if args.use_imend_stop:
         IM_END_MODELS.append(args.model_name)
 
+    # TODO: we need to support the case when you have an existing file
+
+    
     # Data loading
     id_strs, chat_history, model_inputs, metadata = load_eval_data(args)
 

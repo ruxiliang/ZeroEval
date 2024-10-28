@@ -279,7 +279,7 @@ def eval_model(model, filepath, mode="best_of_n", max_N=None):
     return result, parsed_results  # Return parsed_results along with the result
 
 
-def gen_results(run_name_folders, bon=False): 
+def gen_results(run_name_folders, bon=False, save_results=True): 
     model_results = load_model_results(run_name_folders)
 
     def save_parsed_results(filepath, parsed_results, bon=bon):
@@ -351,13 +351,14 @@ def gen_results(run_name_folders, bon=False):
     print(tabulate(table_data, headers=columns, tablefmt="fancy_outline", stralign="center", numalign="center"))
     # print(tabulate(rows, headers=columns, tablefmt="github"))
 
-    # write to json file 
-    with open("result_dirs/zebra-grid.summary.json", "w") as f:
-        json.dump(rows, f, indent=2)
+    if save_results:
+        # write to json file 
+        with open("result_dirs/zebra-grid.summary.json", "w") as f:
+            json.dump(rows, f, indent=2)
 
-    # write to markdown file
-    with open(f"result_dirs/zebra-grid.summary.md", "w") as f:
-        f.write(tabulate(table_data, headers=columns, tablefmt="github", stralign="center", numalign="center"))
+        # write to markdown file
+        with open(f"result_dirs/zebra-grid.summary.md", "w") as f:
+            f.write(tabulate(table_data, headers=columns, tablefmt="github", stralign="center", numalign="center"))
 
 
 if __name__ == "__main__":
@@ -366,8 +367,9 @@ if __name__ == "__main__":
         # "greedy": "result_dirs/zebra-grid",
         # "sampling": "result_dirs/zebra-grid/sampling",
         # "bon_all": "result_dirs/zebra-grid/bon_all", 
-        "rm": "result_dirs/zebra-grid/rm_32", 
+        # "rm": "result_dirs/zebra-grid/rm_32", 
+        "self_verification": "result_dirs/zebra-grid/self_verification",
     } 
     load_private_solutions()
-    gen_results(run_name_folders, bon=True)
+    gen_results(run_name_folders, bon=False, save_results=False)
 

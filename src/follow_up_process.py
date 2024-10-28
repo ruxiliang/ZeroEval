@@ -1,0 +1,41 @@
+"""
+This script is to add a follow-up instruction to the existing result file, 
+where there is already a chat-history of the previous conversation, and an existing output (at least one) from the model.
+"""
+import json, os
+from templates import FOLLOW_UP
+
+def add_follow_up_instruction(file_path, output_path, follow_up_mode="self_verification"):
+    # Load the existing data
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+    
+    for item in data:
+        # Add the follow-up instruction to each item
+        chat_history = item["chat_history"]
+        current_output = item["output"][0]
+        if follow_up_mode == "self_verification":
+            follow_up_prompt = FOLLOW_UP.SELF_VERIFICATION
+        else:
+            raise ValueError(f"Unknown follow_up_mode: {follow_up_mode}")
+        new_chat_history = chat_history + [current_output] + [follow_up_prompt]
+        item["chat_history"] = new_chat_history
+        item["output"] = []
+    
+    # save the modified data back to the file
+    # create the output directory (and the parents) if it doesn't exist
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as file:
+        json.dump(data, file, indent=2)
+
+if __name__ == "__main__":
+    # Example usage
+    file_path = "result_dirs/zebra-grid/gpt-4o-mini-2024-07-18.json"
+    follow_up_mode = "self_verification"
+    output_file = "result_dirs_follow_up/zebra-grid/gpt-4o-mini-2024-07-18.self_verification.T=1.json"
+    add_follow_up_instruction(file_path, output_file, follow_up_mode)  # Call the function to add follow-up instruction
+
+    file_path = "result_dirs/zebra-grid/gpt-4o-2024-08-06.json"
+    output_file = "result_dirs_follow_up/zebra-grid/gpt-4o-2024-08-06.self_verification.T=1.json"
+    add_follow_up_instruction(file_path, output_file, follow_up_mode)  # Call the function to add follow-up instruction
+    

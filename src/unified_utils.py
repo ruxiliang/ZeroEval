@@ -56,26 +56,47 @@ def apply_template(chat_history, model_name, args):
 
  
 def load_eval_data(args, data_name=None, model_name=None):
+
+
     if data_name is None:
         data_name = args.data_name
     if model_name is None:
         model_name = args.model_name    
-    chat_history = []
-    id_strs = []
-    metadata = {}
-    dataset, id_name = mapping_task_names(data_name)
-    
-    
-    print(f"Loaded {len(dataset)} examples from {data_name}")
 
-    for ind, item in enumerate(dataset):
-        id_strs.append(item.get(id_name, f"{data_name}#{ind}")) 
-        prompt = prompt_generation(data_name, item, args)
-        chat_history.append([prompt])
-        for key in item: 
-            if key not in metadata:
-                metadata[key] = []
-            metadata[key].append(item[key])
+    if args.follow_up_mode == "N/A":
+        chat_history = []
+        id_strs = []
+        metadata = {}
+        dataset, id_name = mapping_task_names(data_name)
+        
+        
+        print(f"Loaded {len(dataset)} examples from {data_name}")
+
+        for ind, item in enumerate(dataset):
+            id_strs.append(item.get(id_name, f"{data_name}#{ind}")) 
+            prompt = prompt_generation(data_name, item, args)
+            chat_history.append([prompt])
+            for key in item: 
+                if key not in metadata:
+                    metadata[key] = []
+                metadata[key].append(item[key])
+    elif args.follow_up_mode != "N/A" and os.path.exists(args.follow_up_file):
+        # load the file and use the content there to load the chat history, id_strs, and metadata, etc.
+        with open(args.follow_up_file, "r") as f:
+            follow_up_data = json.load(f)
+        print(f"Loaded {len(follow_up_data)} examples from {args.follow_up_file}")
+        id_strs = []
+        chat_history = []
+        metadata = {}
+        for item in follow_up_data:
+            id_strs.append(item.get("session_id", "N/A"))
+            chat_history.append(item.get("chat_history", []))
+            for key in item:
+                if key in ["configs", "model_input", "generator", "output", "session_id", "chat_history"]:
+                    continue  
+                if key not in metadata:
+                    metadata[key] = []
+                metadata[key].append(item[key])
     print("Start applying template")
     model_inputs = apply_template(chat_history, model_name, args)
     return id_strs, chat_history, model_inputs, metadata
