@@ -34,12 +34,12 @@ def compute_puzzle_accuracy_by_size(bon_files, K, mode):
                 search_space_size_value = search_space_size(entry.get("size", "1*1"))
                 solved = entry.get("solved", False)
                 solved_counts += 1 if solved else 0
-                parsed_bool = entry["parsed"]
+                parsed_bool = entry.get("parsed", True)
                 total_cells, correct_cells = entry.get("total_cells"), entry.get("correct_cells", 0) 
                 if not parsed_bool:
                     no_answer_counts += 1
                 else:
-                    reasoning_lens.append(len(entry["output"][0]))
+                    # reasoning_lens.append(len(entry["output"][0]))
                     cell_wise_accuracy = (correct_cells / total_cells * 100) if total_cells > 0 else 0
                     cell_wise_accuracies.append(cell_wise_accuracy)
                 total_cells_all += total_cells
@@ -79,6 +79,20 @@ models = ["gpt-4o-2024-08-06", "gpt-4o-mini-2024-07-18", "o1-preview-2024-09-12"
           "claude-3-5-sonnet-20241022", "Mistral-Large-2", "Mixtral-8x7B-Instruct-v0.1", 
           "Phi-3.5-mini-instruct", "deepseek-v2.5-0908"
         ]
+
+models = ["gpt-4o-2024-08-06", "gpt-4o-mini-2024-07-18", 
+            # "o1-preview-2024-09-12", "o1-mini-2024-09-12", 
+            "neg_feedback/gpt-4o-mini-2024-07-18.neg_feedback.T=1",
+            "neg_feedback/gpt-4o-2024-08-06.neg_feedback.T=1",
+            "zebra_oracle/gpt-4o-mini-2024-07-18.zebra_oracle.T=1",
+            "zebra_oracle/gpt-4o-2024-08-06.zebra_oracle.T=1",
+            "rm_32/gpt-4o-2024-08-06_rm_scores.rm_bon.K=32",
+            "rm_32/gpt-4o-mini-2024-07-18_rm_scores.rm_bon.K=32",
+            "bon_all/gpt-4o-2024-08-06.best_of_n.K=32",
+            "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=32",
+            "bon_all/gpt-4o-2024-08-06.most_common_of_n.K=32",
+            "bon_all/gpt-4o-mini-2024-07-18.most_common_of_n.K=32",
+            ]
           
 
     # "o1-preview-2024-09-12", "o1-mini-2024-09-12"]

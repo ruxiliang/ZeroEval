@@ -1,11 +1,16 @@
 # Initialize default values
 DATA_NAME="zebra-grid"
+# FU_MODE="self_verification"
+# FU_MODE="neg_feedback"
+FU_MODE="zebra_oracle"
+# FU_MODE="neg_feedback_v2"
+
 # model_name="openai/gpt-4o-mini-2024-07-18"
-# model_pretty_name="gpt-4o-mini-2024-07-18.self_verification.T=1"
+# model_pretty_name="gpt-4o-mini-2024-07-18.${FU_MODE}.T=1"
 model_name="openai/gpt-4o-2024-08-06"
-model_pretty_name="gpt-4o-2024-08-06.self_verification.T=1"
+model_pretty_name="gpt-4o-2024-08-06.${FU_MODE}.T=1"
 n_shards=8
-run_name="self_verification"
+run_name="${FU_MODE}"
 TEMP=0
 TOP_P=1.0
 rp=1.0
@@ -34,7 +39,7 @@ echo "Using Data-parallelism"
 shards_dir="${output_dir}/tmp_${model_pretty_name}"
 for ((shard_id = 0; shard_id < $n_shards; shard_id++)); do
     python src/unified_infer.py \
-        --follow_up_mode "self_verification" \
+        --follow_up_mode "${FU_MODE}" \
         --follow_up_file "result_dirs_follow_up/zebra-grid/${model_pretty_name}.json" \
         --num_shards $n_shards \
         --shard_id $shard_id \
