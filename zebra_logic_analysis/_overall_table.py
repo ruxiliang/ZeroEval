@@ -93,6 +93,13 @@ models = ["gpt-4o-2024-08-06", "gpt-4o-mini-2024-07-18",
             "bon_all/gpt-4o-2024-08-06.most_common_of_n.K=32",
             "bon_all/gpt-4o-mini-2024-07-18.most_common_of_n.K=32",
             ]
+
+models = [ 
+            "bon_all/gpt-4o-2024-08-06.best_of_n.K=128",
+            "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=128",
+            "bon_all/gpt-4o-2024-08-06.most_common_of_n.K=128",
+            "bon_all/gpt-4o-mini-2024-07-18.most_common_of_n.K=128",
+            ]
           
 
     # "o1-preview-2024-09-12", "o1-mini-2024-09-12"]
@@ -102,7 +109,12 @@ model_name_mapping = {
     "gpt-4o-2024-08-06": "gpt-4o",
     "gpt-4o-mini-2024-07-18": "gpt-4o-mini",
     "o1-preview-2024-09-12-v2": "o1-preview",
-    "o1-mini-2024-09-12-v3": "o1-mini"
+    "o1-mini-2024-09-12-v3": "o1-mini",
+    "bon_all/gpt-4o-2024-08-06.best_of_n.K=128": "gpt-4o BoN-Oracle (N=128)",
+    "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=128": "gpt-4o-mini BoN-Oracle (N=128)",
+    "bon_all/gpt-4o-2024-08-06.most_common_of_n.K=128": "gpt-4o Majority (N=128)",
+    "bon_all/gpt-4o-mini-2024-07-18.most_common_of_n.K=128": "gpt-4o-mini Majority (N=128)",
+
     
 }
 # print the table of accuracies in the following shape 
@@ -159,3 +171,7 @@ from tabulate import tabulate
 
 
 print(tabulate(results_df, headers='keys', tablefmt='pretty', showindex=False))
+
+# use latex format to print the table
+print(results_df.to_latex(index=False))
+# 

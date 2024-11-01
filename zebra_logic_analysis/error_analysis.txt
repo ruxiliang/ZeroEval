@@ -287,3 +287,11 @@ Therefore, Alice has red hair and a birthday in February.
 The only remaining person is Peter, who must be in House 2.
 Peter is short, has a birthday in September, and loves mystery books.
 The person in House 4, who has brown hair, must love romance books.
+
+
+
+---- 
+
+
+
+There are 3 houses, numbered 1 to 3 from left to right, as seen from across the street. 

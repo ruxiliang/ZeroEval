@@ -52,6 +52,45 @@ def plot_hidden_reasoning_vs_search_space(data, output_file_name):
     plt.savefig(output_file_name, dpi=300)
     print(f"Saved the plot to {output_file_name}")
 
+
+def plot_hidden_reasoning_vs_search_space(data, output_file_name):
+    # visible_reasoning_token = [d["visible_reasoning_token"] for d in data]
+    # define visible reasoning token as the sum of the number of tokens in the output 
+    
+
+
+    size = [d["size"] for d in data]
+    search_space_sizes = [search_space_size(s) for s in size]
+    solved_status = [d["solved"] for d in data]
+
+    df = pd.DataFrame({
+        'visible_reasoning_token': visible_reasoning_token,
+        'search_space_size': search_space_sizes,
+        'solved': solved_status
+    })
+
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=df, x='search_space_size', y='visible_reasoning_token', 
+                    hue='solved', style='solved', 
+                    palette={True: '#4a90e2', False: '#d9534f'},
+                    markers={True: 'o', False: 'X'}, hue_order=[True, False], legend='full', s=100)
+    plt.legend(title='Solution Status', labels=['Incorrect', 'Correct'])
+    plt.xscale('log')
+    plt.xlabel('Search Space Size (log scale)')
+    plt.ylabel('# Visible Reasoning Tokens')
+    plt.ylim(0, 20000)
+    plt.grid(True)
+
+    log_x = np.log10(df['search_space_size'])
+    coeffs = np.polyfit(log_x, df['visible_reasoning_token'], deg=2)
+    poly = np.poly1d(coeffs)
+    x_fit = np.linspace(log_x.min(), log_x.max(), 500)
+    y_fit = poly(x_fit)
+    plt.plot(10**x_fit, y_fit, color='green', label='Polynomial Fit (degree 2)', linewidth=2)
+
+    plt.savefig(output_file_name, dpi=300)
+    print(f"Saved the plot to {output_file_name}")
+
 def plot_accuracy_vs_search_space(data_by_model, model_list, output_file_name, max_space_size):
     plt.figure(figsize=(10, 6))
     for model in model_list:
@@ -76,14 +115,17 @@ def plot_accuracy_vs_search_space(data_by_model, model_list, output_file_name, m
     print(f"Saved the plot to {output_file_name}")
 
 def plot_reasoning_length_vs_search_space(data_by_model, model_list, output_file_name, max_space_size):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(20, 5))
     for model in model_list:
         model_data = data_by_model[model]
         df = pd.DataFrame(model_data)
         df["search_space_size"] = df["size"].apply(search_space_size)
         reasoning_length_data = df.groupby("search_space_size", as_index=False).apply(
             lambda group: pd.Series({
-                "average_reasoning_length": group["output"].apply(lambda x: len(x[0])).mean()
+                # "average_reasoning_length": group["output"].apply(lambda x: len(x[0])).mean()
+                # "average_reasoning_length": group["output"].apply(lambda x: len(x[0].split('solution\":')[0])).mean()
+                "average_reasoning_length": group["output"].apply(lambda x: len(x[0].split('solution\":')[0])).mean()/4
+                # "average_reasoning_length": group["reasoning"].apply(lambda x: len(x)).mean()
             })
         ).reset_index(drop=True)
         sns.lineplot(data=reasoning_length_data, x="search_space_size", y="average_reasoning_length", marker="o", label=model)
@@ -91,8 +133,8 @@ def plot_reasoning_length_vs_search_space(data_by_model, model_list, output_file
     plt.xscale("log")
     plt.xlim(1, 10**max_space_size)
     plt.xlabel("Search Space Size (log scale)")
-    plt.ylabel("Output Length (in characters)")
-    plt.title("Output Length vs. Search Space Size for Multiple Models")
+    plt.ylabel("# Visible Reasoning Tokens")
+    plt.title("# Visible Reasoning Tokens vs. Search Space Size for Multiple Models")
     plt.grid(True)
     plt.legend(title="Model")
     plt.savefig(output_file_name)
