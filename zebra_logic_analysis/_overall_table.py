@@ -100,7 +100,12 @@ models = [
             "bon_all/gpt-4o-2024-08-06.most_common_of_n.K=128",
             "bon_all/gpt-4o-mini-2024-07-18.most_common_of_n.K=128",
             ]
-          
+
+models = [
+    "neg_feedback_v2/gpt-4o-2024-08-06.neg_feedback_v2.T=1", # self-verify 
+    "neg_feedback_v2/gpt-4o-2024-08-06.neg_feedback_v2.T=2", # self-verify 
+    "neg_feedback_v2/gpt-4o-mini-2024-07-18.neg_feedback_v2.T=1",
+]
 
     # "o1-preview-2024-09-12", "o1-mini-2024-09-12"]
 

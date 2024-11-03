@@ -36,6 +36,22 @@ def add_follow_up_instruction(file_path, output_path, follow_up_mode="self_verif
         json.dump(data, file, indent=2)
 
 if __name__ == "__main__":
+
+
+    # Negative feedback T=2
+
+    file_path = "result_dirs/zebra-grid/neg_feedback_v2/gpt-4o-mini-2024-07-18.neg_feedback_v2.T=1.json"
+    follow_up_mode = "neg_feedback"
+    output_file = "result_dirs_follow_up/zebra-grid/gpt-4o-mini-2024-07-18.neg_feedback_v2.T=2.json"
+    add_follow_up_instruction(file_path, output_file, follow_up_mode)  # Call the function to add follow-up instruction
+
+    file_path = "result_dirs/zebra-grid/neg_feedback_v2/gpt-4o-2024-08-06.neg_feedback_v2.T=1.json"
+    output_file = "result_dirs_follow_up/zebra-grid/gpt-4o-2024-08-06.neg_feedback_v2.T=2.json"
+    add_follow_up_instruction(file_path, output_file, follow_up_mode)  # Call the function to add follow-up instruction
+
+    exit()
+
+    
     # Example usage
     file_path = "result_dirs/zebra-grid/gpt-4o-mini-2024-07-18.json"
     follow_up_mode = "self_verification"
@@ -58,6 +74,10 @@ if __name__ == "__main__":
     output_file = "result_dirs_follow_up/zebra-grid/gpt-4o-2024-08-06.neg_feedback_v2.T=1.json"
     add_follow_up_instruction(file_path, output_file, follow_up_mode)  # Call the function to add follow-up instruction
     
+
+
+    
+
 
     # Zebra Oracle Feedback 
     file_path = "result_dirs_parsed/zebra-grid/gpt-4o-mini-2024-07-18.json"

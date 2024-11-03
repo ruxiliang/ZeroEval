@@ -370,7 +370,7 @@ if __name__ == "__main__":
         # "rm": "result_dirs/zebra-grid/rm_32", 
         # "self_verification": "result_dirs/zebra-grid/self_verification/",
         "neg_feedback": "result_dirs/zebra-grid/neg_feedback_v2",
-        "zebra_oracle": "result_dirs/zebra-grid/zebra_oracle/",
+        # "zebra_oracle": "result_dirs/zebra-grid/zebra_oracle/",
     } 
     load_private_solutions()
     gen_results(run_name_folders, bon=False, save_results=False)

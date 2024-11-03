@@ -2,13 +2,18 @@
 DATA_NAME="zebra-grid"
 # FU_MODE="self_verification"
 # FU_MODE="neg_feedback"
-FU_MODE="zebra_oracle"
-# FU_MODE="neg_feedback_v2"
+# FU_MODE="zebra_oracle"
+FU_MODE="neg_feedback_v2"
 
+T=2
 # model_name="openai/gpt-4o-mini-2024-07-18"
-# model_pretty_name="gpt-4o-mini-2024-07-18.${FU_MODE}.T=1"
+# model_pretty_name="gpt-4o-mini-2024-07-18.${FU_MODE}.T=${T}"
 model_name="openai/gpt-4o-2024-08-06"
-model_pretty_name="gpt-4o-2024-08-06.${FU_MODE}.T=1"
+model_pretty_name="gpt-4o-2024-08-06.${FU_MODE}.T=${T}"
+
+
+
+
 n_shards=8
 run_name="${FU_MODE}"
 TEMP=0
