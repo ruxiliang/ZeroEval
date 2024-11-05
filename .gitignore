@@ -1,3 +1,4 @@
+result_dirs/wildbench_v2-hard
 !evaluation/results_v2.0522/pairwise.v2/eval=gpt-4-turbo-2024-04-09/ref=gpt-4-turbo-2024-04-09/*.json
 local_scripts/
 # Byte-compiled / optimized / DLL files

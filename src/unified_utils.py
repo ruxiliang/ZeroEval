@@ -107,6 +107,7 @@ def clear_output(output, model_name):
     """
     You can customize the output clearing logic here based on the model_name.
     """
+    # print(f"the output is {output}") 
     output = output.replace("<|endoftext|>", " ")
     output = output.replace("<pad>", " ")
     output = output.replace("<end_of_turn>", " ")
@@ -139,6 +140,8 @@ def save_outputs(args, id_strs, outputs, chat_history, metadata, model_inputs, f
                 output_item[key] = metadata[key][ind]
         output_item = result_format(output_item, args)
         formatted_outputs.append(output_item)  
+    if not os.path.exists(os.path.dirname(filepath)):
+        os.makedirs(os.path.dirname(filepath))
     with open(filepath, "w") as f:
         json.dump(formatted_outputs, f, indent=2)
         

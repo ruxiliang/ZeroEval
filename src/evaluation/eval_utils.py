@@ -105,10 +105,7 @@ def extract_first_complete_json(s):
                         return None
                     finally:
                         first_json_start = None
-    
-    return None
-    
-
+    return None 
  
 def extract_last_complete_json(s):
     # Stack to keep track of opening and closing braces

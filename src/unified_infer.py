@@ -302,7 +302,7 @@ if __name__ == "__main__":
                 }
                 result = api(**openai_args)
                 # for o1 
-                if args.model_name.startswith("openai/o1-"):
+                if args.model_name.startswith("openai/o1-"): # or type(result) == tuple:
                     content, hidden_reasoning_token = result
                     # print(f"hidden_reasoning_token: {hidden_reasoning_token}")
                     if "hidden_reasoning_token" not in metadata:

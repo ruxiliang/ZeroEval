@@ -20,6 +20,9 @@ def mapping_task_names(data_name):
         dataset = load_dataset("flydust/zero-eval", "crux", split="test")
     elif data_name == "math-l5":
         dataset = load_dataset("AI-MO/aimo-validation-math-level-5", split="train")
+    elif data_name == "wildbench_v2-hard":
+        dataset = load_dataset("allenai/WildBench", "v2-hard", split="test")
+        id_name = "session_id"
     else:
         raise ValueError(f"Data name {data_name} not supported")
     return dataset, id_name
@@ -32,6 +35,8 @@ def prompt_generation(data_name, data_item, args):
         prompt = apply_mc_template(data_item) 
     elif data_name in ["alpaca_eval"]:
         prompt = data_item["instruction"]
+    elif data_name in ["wildbench_v2-hard"]:
+        prompt = data_item["conversation_input"][0]["content"]
     elif data_name in ["zebra-grid"]:
         prompt = apply_lgp_grid_template(data_item) 
     elif data_name in ["gsm", "math-l5"]:
@@ -58,6 +63,11 @@ def result_format(output_item, args):
     elif args.data_name in ["zebra-grid"]:
         if "solution" in output_item:
             del output_item["solution"]
+    elif args.data_name in ["wildbench_v2-hard"]:
+        for key in ["conversation_input", "references", "length", "checklist", "avg_score", "var_score"]:
+            if key in output_item:
+                del output_item[key]
+
     else:
         pass 
     return output_item
