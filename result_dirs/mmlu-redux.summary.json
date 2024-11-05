@@ -232,6 +232,14 @@
     "Reason Lens": "704.72"
   },
   {
+    "Model": "claude-3-5-haiku-20241022",
+    "Mode": "greedy",
+    "Acc": "79.63",
+    "No answer": "0.00",
+    "Total": 2778,
+    "Reason Lens": "788.72"
+  },
+  {
     "Model": "Meta-Llama-3-70B-Instruct",
     "Mode": "greedy",
     "Acc": "78.01",

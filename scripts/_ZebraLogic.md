@@ -59,6 +59,9 @@ bash zero_eval_api.sh -d zebra-grid -f reka -m reka/reka-core-20240501 -p reka-c
 bash zero_eval_api.sh -d zebra-grid -f together -m meta-llama/Llama-3-70b-chat-hf -p Llama-3-70b-chat-hf -s 8
 bash zero_eval_api.sh -d zebra-grid -f together -m meta-llama/Llama-3-8B-chat-hf -p Llama-3-8B-chat-hf -s 8
 
+
+bash zero_eval_api.sh -d zebra-grid -f together -m meta-llama/Llama-3.2-3B-Instruct-Turbo -p Llama-3.2-3B-Instruct@together -s 8
+
 bash zero_eval_api.sh -d zebra-grid -f openai -m deepseek-chat -p deepseek-chat -s 8
 bash zero_eval_api.sh -d zebra-grid -f openai -m deepseek-coder -p deepseek-coder -s 8
 

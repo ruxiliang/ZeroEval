@@ -22,6 +22,7 @@
 |          Qwen2.5-7B-Instruct           | greedy | 51.46 |    2.77     |   721   |    1405.03    |
 |     Llama-3.1-405B-Inst@sambanova      | greedy | 49.79 |    6.93     |   721   |    301.83     |
 |            Mistral-Large-2             | greedy | 48.54 |    0.69     |   721   |    951.92     |
+|       claude-3-5-haiku-20241022        | greedy | 46.46 |    0.14     |   721   |    804.68     |
 |         gpt-4-turbo-2024-04-09         | greedy | 46.46 |    0.55     |   721   |    918.03     |
 |           deepseek-v2.5-0908           | greedy | 44.66 |    1.66     |   721   |    1022.35    |
 |      Meta-Llama-3.1-70B-Instruct       | greedy | 43.13 |    12.21    |   721   |    504.65     |

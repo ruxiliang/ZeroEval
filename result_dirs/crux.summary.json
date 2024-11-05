@@ -184,6 +184,14 @@
     "Reason Lens": "564.88"
   },
   {
+    "Model": "claude-3-5-haiku-20241022",
+    "Mode": "greedy",
+    "Acc": "68.75",
+    "No answer": "0.00",
+    "Total": 800,
+    "Reason Lens": "486.32"
+  },
+  {
     "Model": "gemini-1.5-pro",
     "Mode": "greedy",
     "Acc": "68.00",

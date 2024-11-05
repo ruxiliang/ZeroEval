@@ -29,6 +29,7 @@
 |        deepseek-v2.5-0908        | greedy |  70   |    0.12     |   800   |    524.02     |
 |       Qwen2.5-32B-Instruct       | greedy | 69.88 |    0.38     |   800   |    545.23     |
 |      deepseek-v2-coder-0724      | greedy | 69.5  |      0      |   800   |    564.88     |
+|    claude-3-5-haiku-20241022     | greedy | 68.75 |      0      |   800   |    486.32     |
 |          gemini-1.5-pro          | greedy |  68   |    0.25     |   800   |    385.66     |
 |     claude-3-sonnet-20240229     | greedy | 66.62 |      0      |   800   |    749.15     |
 |   Meta-Llama-3.1-70B-Instruct    | greedy | 64.25 |     0.5     |   800   |    493.74     |

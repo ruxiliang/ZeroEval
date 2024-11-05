@@ -33,6 +33,7 @@
 |          gemini-1.5-pro          | greedy |  single  |    1     |     19.4     |       55.71       |       5.28        |   44.59    |     0.8     |      1000       |    1336.17    |
 |         yi-large-preview         | greedy |  single  |    1     |     18.9     |       58.93       |       3.33        |   42.61    |     1.4     |      1000       |    833.36     |
 |             yi-large             | greedy |  single  |    1     |     18.8     |       58.21       |       3.47        |   39.83    |     1.8     |      1000       |    757.01     |
+|    claude-3-5-haiku-20241022     | greedy |  single  |    1     |     18.7     |       57.86       |       3.47        |   43.22    |     0.1     |      1000       |    660.91     |
 |     claude-3-sonnet-20240229     | greedy |  single  |    1     |     18.7     |       58.93       |       3.06        |   43.66    |      0      |      1000       |    1095.37    |
 |    Meta-Llama-3-70B-Instruct     | greedy |  single  |    1     |     16.8     |       52.86       |       2.78        |   42.31    |     0.2     |      1000       |    809.95     |
 |            Athene-70B            | greedy |  single  |    1     |     16.7     |       52.5        |       2.78        |   32.98    |    21.1     |      1000       |    391.19     |
@@ -53,6 +54,7 @@
 |        mathstral-7B-v0.1         | greedy |  single  |    1     |      9       |        30         |       0.83        |   20.42    |     36      |      1000       |    1148.16    |
 |    Mixtral-8x7B-Instruct-v0.1    | greedy |  single  |    1     |     8.7      |       28.93       |       0.83        |   26.47    |    20.3     |      1000       |    1177.21    |
 |        Qwen2-7B-Instruct         | greedy |  single  |    1     |     8.4      |       29.29       |       0.28        |   22.06    |    24.4     |      1000       |    1473.23    |
+|  Llama-3.2-3B-Instruct@together  | greedy |  single  |    1     |     7.4      |       25.71       |       0.28        |   13.14    |    54.5     |      1000       |    963.47     |
 |      Phi-3.5-mini-instruct       | greedy |  single  |    1     |     6.4      |       21.79       |       0.42        |    5.98    |    80.6     |      1000       |    718.43     |
 |       Qwen2.5-3B-Instruct        | greedy |  single  |    1     |     4.8      |       17.14       |         0         |   11.44    |    56.7     |      1000       |    906.58     |
 |          gemma-2-2b-it           | greedy |  single  |    1     |     4.2      |       14.29       |       0.28        |    9.97    |    57.2     |      1000       |    1032.89    |

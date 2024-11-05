@@ -364,14 +364,14 @@ def gen_results(run_name_folders, bon=False, save_results=True):
 if __name__ == "__main__":
     
     run_name_folders = {
-        # "greedy": "result_dirs/zebra-grid",
+        "greedy": "result_dirs/zebra-grid",
         # "sampling": "result_dirs/zebra-grid/sampling",
         # "bon_all": "result_dirs/zebra-grid/bon_all", 
         # "rm": "result_dirs/zebra-grid/rm_32", 
         # "self_verification": "result_dirs/zebra-grid/self_verification/",
-        "neg_feedback": "result_dirs/zebra-grid/neg_feedback_v2",
+        # "neg_feedback": "result_dirs/zebra-grid/neg_feedback_v2",
         # "zebra_oracle": "result_dirs/zebra-grid/zebra_oracle/",
     } 
     load_private_solutions()
-    gen_results(run_name_folders, bon=False, save_results=False)
+    gen_results(run_name_folders, bon=False, save_results=True)
 
