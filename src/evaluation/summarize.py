@@ -26,6 +26,7 @@ def filter_models_by_num_examples(cur_data, total_num_examples, total_key='Total
 gsm_data = filter_models_by_num_examples(gsm_data, total_num_examples['gsm'])
 mmlu_data = filter_models_by_num_examples(mmlu_data, total_num_examples['mmlu-redux'])
 zebra_data = filter_models_by_num_examples(zebra_data, total_num_examples['zebra-grid'], 'Total Puzzles')
+
 crux_data = filter_models_by_num_examples(crux_data, total_num_examples['crux'])
 math_data = filter_models_by_num_examples(math_data, total_num_examples['math-l5'])
 gplanet_data = filter_models_by_num_examples(gplanet_data, total_num_examples['gplanet'])
