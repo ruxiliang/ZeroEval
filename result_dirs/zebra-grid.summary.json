@@ -429,6 +429,19 @@
     "N_Size": 1
   },
   {
+    "Model": "claude-3-5-haiku-20241022",
+    "Mode": "greedy",
+    "Puzzle Acc": "18.70",
+    "Cell Acc": "43.22",
+    "No answer": "0.10",
+    "Easy Puzzle Acc": "57.86",
+    "Hard Puzzle Acc": "3.47",
+    "Total Puzzles": 1000,
+    "Reason Lens": "660.91",
+    "N_Mode": "single",
+    "N_Size": 1
+  },
+  {
     "Model": "claude-3-sonnet-20240229",
     "Mode": "greedy",
     "Puzzle Acc": "18.70",
@@ -685,6 +698,19 @@
     "Hard Puzzle Acc": "0.28",
     "Total Puzzles": 1000,
     "Reason Lens": "1473.23",
+    "N_Mode": "single",
+    "N_Size": 1
+  },
+  {
+    "Model": "Llama-3.2-3B-Instruct@together",
+    "Mode": "greedy",
+    "Puzzle Acc": "7.40",
+    "Cell Acc": "13.14",
+    "No answer": "54.50",
+    "Easy Puzzle Acc": "25.71",
+    "Hard Puzzle Acc": "0.28",
+    "Total Puzzles": 1000,
+    "Reason Lens": "963.47",
     "N_Mode": "single",
     "N_Size": 1
   },

@@ -35,6 +35,7 @@
 |        deepseek-v2.5-0908        | greedy | 80.35 |    0.22     |  2778   |    641.15     |
 |      deepseek-v2-coder-0724      | greedy | 80.24 |    0.32     |  2778   |    650.65     |
 |      deepseek-v2-coder-0614      | greedy | 79.63 |    0.14     |  2778   |    704.72     |
+|    claude-3-5-haiku-20241022     | greedy | 79.63 |      0      |  2778   |    788.72     |
 |    Meta-Llama-3-70B-Instruct     | greedy | 78.01 |    0.11     |  2778   |    520.77     |
 |         gemini-1.5-flash         | greedy | 77.36 |    1.26     |  2778   |    583.45     |
 |            Athene-70B            | greedy | 76.64 |    0.04     |  2778   |    552.61     |

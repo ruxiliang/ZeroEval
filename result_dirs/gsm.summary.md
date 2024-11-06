@@ -18,6 +18,7 @@
 |        gpt-4o-2024-05-13         | greedy | 95.38 |      0      |  1319   |    479.98     |
 |    gemini-1.5-flash-exp-0827     | greedy | 95.01 |      0      |   681   |    515.13     |
 |     gemini-1.5-pro-exp-0801      | greedy |  95   |      0      |  1319   |     298.8     |
+|    claude-3-5-haiku-20241022     | greedy | 94.47 |      0      |  1319   |    455.78     |
 |      gpt-4o-mini-2024-07-18      | greedy | 94.24 |      0      |  1319   |    463.71     |
 |   Meta-Llama-3.1-70B-Instruct    | greedy | 94.16 |    0.08     |  1319   |    453.94     |
 |      deepseek-v2-chat-0628       | greedy | 93.93 |      0      |  1319   |    495.52     |
