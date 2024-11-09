@@ -40,7 +40,60 @@ def load_data(model_list, base_path):
         data_by_model[model] = data
     return data_by_model
 
-def plot_hidden_reasoning_vs_search_space(data, output_file_name):
+def plot_hidden_reasoning_vs_z3_v1(data, output_file_name, z3_key="conflicts"):
+    hidden_reasoning_token = [d["hidden_reasoning_token"] for d in data]
+    size = [d["size"] for d in data]
+    search_space_sizes = [search_space_size(s) for s in size]
+    solved_status = [d["solved"] for d in data]
+    z3_conflicts = [z3_stat[d["id"]]["conflicts"] for d in data]
+
+    df = pd.DataFrame({
+        'hidden_reasoning_token': hidden_reasoning_token,
+        'search_space_size': search_space_sizes,
+        'z3_conflicts': z3_conflicts,
+        'solved': solved_status
+    })
+    # Bin the z3_conflicts and calculate mean hidden reasoning tokens for each bin
+    df["z3_conflicts_bin"] = pd.qcut(df["z3_conflicts"], q=15, duplicates='drop')
+    tokens_by_conflicts = df.groupby("z3_conflicts_bin")["hidden_reasoning_token"].mean()
+    bin_centers = df.groupby("z3_conflicts_bin")["z3_conflicts"].mean()
+
+    plt.figure(figsize=(10, 6))
+    # Plot average hidden reasoning tokens vs z3_conflicts
+    plt.plot(bin_centers, tokens_by_conflicts, marker='o', color='#4a90e2', linewidth=2)
+
+    plt.xlabel("Z3 Conflicts")
+    plt.ylabel("Average Hidden CoT Tokens")
+    plt.title("Hidden CoT Tokens vs. Z3 Conflicts")
+    plt.grid(True)
+
+    plt.savefig(output_file_name, dpi=300)
+    print(f"Saved the plot to {output_file_name}")
+
+    # plt.figure(figsize=(10, 6))
+    # sns.scatterplot(data=df, x='search_space_size', y='hidden_reasoning_token', 
+    #                 hue='solved', style='solved', 
+    #                 palette={True: '#4a90e2', False: '#d9534f'},
+    #                 markers={True: 'o', False: 'X'}, hue_order=[True, False], legend='full', s=100)
+    # plt.legend(title='Solution Status', labels=['Incorrect', 'Correct'])
+    # plt.xscale('log')
+    # plt.xlabel('Search Space Size (log scale)')
+    # plt.ylabel('# Hidden CoT Tokens')
+    # plt.ylim(0, 20000)
+    # plt.grid(True)
+
+    # log_x = np.log10(df['search_space_size'])
+    # coeffs = np.polyfit(log_x, df['hidden_reasoning_token'], deg=2)
+    # poly = np.poly1d(coeffs)
+    # x_fit = np.linspace(log_x.min(), log_x.max(), 500)
+    # y_fit = poly(x_fit)
+    # plt.plot(10**x_fit, y_fit, color='green', label='Polynomial Fit (degree 2)', linewidth=2)
+
+    # plt.savefig(output_file_name, dpi=300)
+    # print(f"Saved the plot to {output_file_name}")
+
+
+def plot_hidden_reasoning_vs_z3(data, output_file_name, z3_key="conflicts"):
     hidden_reasoning_token = [d["hidden_reasoning_token"] for d in data]
     size = [d["size"] for d in data]
     search_space_sizes = [search_space_size(s) for s in size]
@@ -55,64 +108,75 @@ def plot_hidden_reasoning_vs_search_space(data, output_file_name):
     })
 
     plt.figure(figsize=(10, 6))
-    sns.scatterplot(data=df, x='search_space_size', y='hidden_reasoning_token', 
+    
+    # First plot the individual points
+    sns.scatterplot(data=df, x='z3_conflicts', y='hidden_reasoning_token', 
                     hue='solved', style='solved', 
                     palette={True: '#4a90e2', False: '#d9534f'},
-                    markers={True: 'o', False: 'X'}, hue_order=[True, False], legend='full', s=100)
-    plt.legend(title='Solution Status', labels=['Incorrect', 'Correct'])
-    plt.xscale('log')
-    plt.xlabel('Search Space Size (log scale)')
-    plt.ylabel('# Hidden CoT Tokens')
-    plt.ylim(0, 20000)
+                    markers={True: 'o', False: 'X'}, 
+                    hue_order=[True, False], 
+                    legend='full', 
+                    alpha=0.5,  # Make points semi-transparent
+                    s=100)  # Point size
+    
+    # Then plot the average line
+    df["z3_conflicts_bin"] = pd.qcut(df["z3_conflicts"], q=100, duplicates='drop')
+    tokens_by_conflicts = df.groupby("z3_conflicts_bin")["hidden_reasoning_token"].mean()
+    bin_centers = df.groupby("z3_conflicts_bin")["z3_conflicts"].mean()
+    plt.plot(bin_centers, tokens_by_conflicts, 
+             color='green', linewidth=2, label='Average',
+             zorder=5)  # Put line on top of points
+
+    plt.xlabel("Z3 Conflicts")
+    plt.ylabel("Hidden CoT Tokens")
+    plt.title(f"Hidden CoT Tokens vs. Z3 Conflicts")
     plt.grid(True)
+    
+    # Update legend
+    handles, labels = plt.gca().get_legend_handles_labels()
+    plt.legend(handles=handles, labels=['Correct', 'Incorrect', 'Average'],
+              title='Solution Status')
 
-    log_x = np.log10(df['search_space_size'])
-    coeffs = np.polyfit(log_x, df['hidden_reasoning_token'], deg=2)
-    poly = np.poly1d(coeffs)
-    x_fit = np.linspace(log_x.min(), log_x.max(), 500)
-    y_fit = poly(x_fit)
-    plt.plot(10**x_fit, y_fit, color='green', label='Polynomial Fit (degree 2)', linewidth=2)
-
-    plt.savefig(output_file_name, dpi=300)
+    plt.savefig(output_file_name, dpi=300, bbox_inches='tight')
     print(f"Saved the plot to {output_file_name}")
 
 
-def plot_hidden_reasoning_vs_search_space(data, output_file_name):
-    # visible_reasoning_token = [d["visible_reasoning_token"] for d in data]
-    # define visible reasoning token as the sum of the number of tokens in the output 
+# def plot_hidden_reasoning_vs_search_space(data, output_file_name):
+#     # visible_reasoning_token = [d["visible_reasoning_token"] for d in data]
+#     # define visible reasoning token as the sum of the number of tokens in the output 
     
 
-    size = [d["size"] for d in data]
-    search_space_sizes = [search_space_size(s) for s in size]
-    solved_status = [d["solved"] for d in data]
+#     size = [d["size"] for d in data]
+#     search_space_sizes = [search_space_size(s) for s in size]
+#     solved_status = [d["solved"] for d in data]
 
-    df = pd.DataFrame({
-        'visible_reasoning_token': visible_reasoning_token,
-        'search_space_size': search_space_sizes,
-        'solved': solved_status
-    })
+#     df = pd.DataFrame({
+#         'visible_reasoning_token': visible_reasoning_token,
+#         'search_space_size': search_space_sizes,
+#         'solved': solved_status
+#     })
 
-    plt.figure(figsize=(10, 6))
-    sns.scatterplot(data=df, x='search_space_size', y='visible_reasoning_token', 
-                    hue='solved', style='solved', 
-                    palette={True: '#4a90e2', False: '#d9534f'},
-                    markers={True: 'o', False: 'X'}, hue_order=[True, False], legend='full', s=100)
-    plt.legend(title='Solution Status', labels=['Incorrect', 'Correct'])
-    plt.xscale('log')
-    plt.xlabel('Search Space Size (log scale)')
-    plt.ylabel('# Visible Reasoning Tokens')
-    plt.ylim(0, 20000)
-    plt.grid(True)
+#     plt.figure(figsize=(10, 6))
+#     sns.scatterplot(data=df, x='search_space_size', y='visible_reasoning_token', 
+#                     hue='solved', style='solved', 
+#                     palette={True: '#4a90e2', False: '#d9534f'},
+#                     markers={True: 'o', False: 'X'}, hue_order=[True, False], legend='full', s=100)
+#     plt.legend(title='Solution Status', labels=['Incorrect', 'Correct'])
+#     plt.xscale('log')
+#     plt.xlabel('Search Space Size (log scale)')
+#     plt.ylabel('# Visible Reasoning Tokens')
+#     plt.ylim(0, 20000)
+#     plt.grid(True)
 
-    log_x = np.log10(df['search_space_size'])
-    coeffs = np.polyfit(log_x, df['visible_reasoning_token'], deg=2)
-    poly = np.poly1d(coeffs)
-    x_fit = np.linspace(log_x.min(), log_x.max(), 500)
-    y_fit = poly(x_fit)
-    plt.plot(10**x_fit, y_fit, color='green', label='Polynomial Fit (degree 2)', linewidth=2)
+#     log_x = np.log10(df['search_space_size'])
+#     coeffs = np.polyfit(log_x, df['visible_reasoning_token'], deg=2)
+#     poly = np.poly1d(coeffs)
+#     x_fit = np.linspace(log_x.min(), log_x.max(), 500)
+#     y_fit = poly(x_fit)
+#     plt.plot(10**x_fit, y_fit, color='green', label='Polynomial Fit (degree 2)', linewidth=2)
 
-    plt.savefig(output_file_name, dpi=300)
-    print(f"Saved the plot to {output_file_name}")
+#     plt.savefig(output_file_name, dpi=300)
+#     print(f"Saved the plot to {output_file_name}")
 
 def plot_accuracy_vs_z3(data_by_model, model_list, output_file_name, max_space_size, z3_key="conflicts"):
     plt.figure(figsize=(10, 6))
@@ -146,6 +210,7 @@ def plot_accuracy_vs_z3(data_by_model, model_list, output_file_name, max_space_s
     plt.ylabel("Accuracy (%)")
     plt.grid(True)
     plt.legend(title="Model")
+    output_file_name = output_file_name.replace(".z3.", f".z3_{z3_key}.")
     plt.savefig(output_file_name)
     print(f"Saved the plot to {output_file_name}")
 
@@ -193,7 +258,7 @@ def main():
     })
 
     if args.analysis == 'hidden_reasoning':
-        plot_hidden_reasoning_vs_search_space(data_by_model[args.model_list[0]], args.output_file)
+        plot_hidden_reasoning_vs_z3(data_by_model[args.model_list[0]], args.output_file)
     elif args.analysis == 'accuracy':
         plot_accuracy_vs_z3(data_by_model, args.model_list, args.output_file, args.max_space_size)
     elif args.analysis == 'reasoning_length':
@@ -206,8 +271,8 @@ if __name__ == "__main__":
 """
 
 # For showing hidden reasoning token vs search space size
-python zebra_logic_analysis/_uni_figure.py --analysis hidden_reasoning --model_list o1-preview-2024-09-12-v2 --output_file zebra_logic_analysis/o1_preview.hidden_cot.png
-python zebra_logic_analysis/_uni_figure.py --analysis hidden_reasoning --model_list o1-mini-2024-09-12-v3 --output_file zebra_logic_analysis/o1_mini.hidden_cot.png
+python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning --model_list o1-preview-2024-09-12-v2 --output_file zebra_logic_analysis/o1_preview.hidden_cot.z3.png
+python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning --model_list o1-mini-2024-09-12-v3 --output_file zebra_logic_analysis/o1_mini.hidden_cot.z3.png
 
 
 
@@ -226,13 +291,13 @@ python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
 python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
     --model_list "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=1" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=4" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=8" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=16" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=32" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=64" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=128" "o1-mini-2024-09-12-v3"  \
     --output_file zebra_logic_analysis/bon_4o_mini.accuracy_hists.z3.png --max_space_size 18
-# "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=256" \
+
 
 
 # For showing accuracy histograms
-python zebra_logic_analysis/_uni_figure.py --analysis accuracy \
+python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
     --model_list "bon_all/gpt-4o-2024-08-06.best_of_n.K=1" "bon_all/gpt-4o-2024-08-06.best_of_n.K=4" "bon_all/gpt-4o-2024-08-06.best_of_n.K=8" "bon_all/gpt-4o-2024-08-06.best_of_n.K=16" "bon_all/gpt-4o-2024-08-06.best_of_n.K=32" "bon_all/gpt-4o-2024-08-06.best_of_n.K=64" "bon_all/gpt-4o-2024-08-06.best_of_n.K=128" "o1-preview-2024-09-12-v2"  \
-    --output_file zebra_logic_analysis/bon_4o.accuracy_hists.png --max_space_size 18
+    --output_file zebra_logic_analysis/bon_4o.accuracy_hists.z3.png --max_space_size 18
 
 
 python zebra_logic_analysis/_uni_figure.py --analysis accuracy \
