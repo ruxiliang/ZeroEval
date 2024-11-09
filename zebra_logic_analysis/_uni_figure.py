@@ -70,11 +70,9 @@ def plot_hidden_reasoning_vs_search_space(data, output_file_name):
     print(f"Saved the plot to {output_file_name}")
 
 
-def plot_hidden_reasoning_vs_search_space(data, output_file_name):
+def plot_hidden_reasoning_vs_search_space_v2(data, output_file_name):
     # visible_reasoning_token = [d["visible_reasoning_token"] for d in data]
     # define visible reasoning token as the sum of the number of tokens in the output 
-    
-
 
     size = [d["size"] for d in data]
     search_space_sizes = [search_space_size(s) for s in size]
@@ -108,7 +106,7 @@ def plot_hidden_reasoning_vs_search_space(data, output_file_name):
     plt.savefig(output_file_name, dpi=300)
     print(f"Saved the plot to {output_file_name}")
 
-def plot_accuracy_vs_search_space(data_by_model, model_list, output_file_name, max_space_size):
+def plot_accuracy_vs_search_space_v1(data_by_model, model_list, output_file_name, max_space_size):
     plt.figure(figsize=(10, 6))
     for model in model_list:
         model_data = data_by_model[model]
@@ -129,6 +127,46 @@ def plot_accuracy_vs_search_space(data_by_model, model_list, output_file_name, m
     plt.title("Accuracy vs. Search Space Size for Multiple Models")
     plt.grid(True)
     plt.legend(title="Model")
+    plt.savefig(output_file_name)
+    print(f"Saved the plot to {output_file_name}")
+
+def plot_accuracy_vs_search_space(data_by_model, model_list, output_file_name, max_space_size):
+    plt.figure(figsize=(10, 6))
+    
+    # Define bins in log space
+    bin_edges = np.logspace(0, max_space_size, num=15)  # 20 bins from 10^0 to 10^max_space_size
+    
+    for model in model_list:
+        model_data = data_by_model[model]
+        df = pd.DataFrame(model_data)
+        df["search_space_size"] = df["size"].apply(search_space_size)
+        
+        # Bin the data
+        df['space_size_bin'] = pd.cut(df['search_space_size'], bins=bin_edges, labels=bin_edges[:-1])
+        
+        # Calculate accuracy for each bin - modified to handle empty groups
+        accuracy_data = []
+        for name, group in df.groupby("space_size_bin"):
+            if len(group) > 0:  # Only process non-empty groups
+                accuracy_data.append({
+                    "search_space_size": name,
+                    "accuracy": group["solved"].sum() / len(group) * 100
+                })
+        
+        accuracy_data = pd.DataFrame(accuracy_data)
+        if not accuracy_data.empty:  # Only plot if we have data
+            clean_name = clean_model_name(model)
+            sns.lineplot(data=accuracy_data, x="search_space_size", y="accuracy", 
+                        marker="o", label=clean_name)
+
+    plt.xscale("log")
+    plt.xlim(1, 10**max_space_size)
+    plt.xlabel("Search Space Size (log scale)")
+    plt.ylabel("Accuracy (%)")
+    plt.title("Accuracy vs. Search Space Size")
+    plt.grid(True)
+    plt.legend(title="Model")
+    plt.tight_layout()
     plt.savefig(output_file_name)
     print(f"Saved the plot to {output_file_name}")
 
