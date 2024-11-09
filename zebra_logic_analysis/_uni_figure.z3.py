@@ -6,6 +6,11 @@ import seaborn as sns
 import pandas as pd
 import argparse
 
+z3_stat = {}
+with open("zebra_logic_analysis/z3_data_dict.json") as f:
+    z3_stat = json.load(f) # key is th id and the value is a dict of z3 data (like conflicts, time, etc)
+
+
 def search_space_size(size):
     N, M = map(int, size.split("*"))
     return (math.factorial(N))**M
@@ -40,10 +45,12 @@ def plot_hidden_reasoning_vs_search_space(data, output_file_name):
     size = [d["size"] for d in data]
     search_space_sizes = [search_space_size(s) for s in size]
     solved_status = [d["solved"] for d in data]
+    z3_conflicts = [z3_stat[d["id"]]["conflicts"] for d in data]
 
     df = pd.DataFrame({
         'hidden_reasoning_token': hidden_reasoning_token,
         'search_space_size': search_space_sizes,
+        'z3_conflicts': z3_conflicts,
         'solved': solved_status
     })
 
@@ -74,7 +81,6 @@ def plot_hidden_reasoning_vs_search_space(data, output_file_name):
     # visible_reasoning_token = [d["visible_reasoning_token"] for d in data]
     # define visible reasoning token as the sum of the number of tokens in the output 
     
-
 
     size = [d["size"] for d in data]
     search_space_sizes = [search_space_size(s) for s in size]
@@ -108,25 +114,36 @@ def plot_hidden_reasoning_vs_search_space(data, output_file_name):
     plt.savefig(output_file_name, dpi=300)
     print(f"Saved the plot to {output_file_name}")
 
-def plot_accuracy_vs_search_space(data_by_model, model_list, output_file_name, max_space_size):
+def plot_accuracy_vs_z3(data_by_model, model_list, output_file_name, max_space_size, z3_key="conflicts"):
     plt.figure(figsize=(10, 6))
     for model in model_list:
         model_data = data_by_model[model]
         df = pd.DataFrame(model_data)
-        df["search_space_size"] = df["size"].apply(search_space_size)
-        accuracy_data = df.groupby("search_space_size", as_index=False).apply(
-            lambda group: pd.Series({
-                "accuracy": group["solved"].sum() / 40 * 100
-            })
-        ).reset_index(drop=True)
-        clean_name = clean_model_name(model)
-        sns.lineplot(data=accuracy_data, x="search_space_size", y="accuracy", marker="o", label=clean_name)
+        df["z3_conflicts"] = df["id"].apply(lambda x: z3_stat[x]["conflicts"])
+        # Bin the z3_conflicts and calculate accuracy for each bin
+        df["z3_conflicts_bin"] = pd.qcut(df["z3_conflicts"], q=15, duplicates='drop')
+        # also for the z3_propagations
+        df["z3_propagations"] = df["id"].apply(lambda x: z3_stat[x]["propagations"])
+        df["z3_propagations_bin"] = pd.qcut(df["z3_propagations"], q=15, duplicates='drop')
+        if z3_key == "conflicts":
+            accuracy_by_conflicts = df.groupby("z3_conflicts_bin")["solved"].mean() * 100
+            bin_centers = df.groupby("z3_conflicts_bin")["z3_conflicts"].mean()
+        elif z3_key == "propagations":
+            accuracy_by_conflicts = df.groupby("z3_propagations_bin")["solved"].mean() * 100
+            bin_centers = df.groupby("z3_propagations_bin")["z3_propagations"].mean()
+        
+        # Plot accuracy vs z3_conflicts
+        plt.plot(bin_centers, accuracy_by_conflicts, marker='o', label=clean_model_name(model))
 
-    plt.xscale("log")
-    plt.xlim(1, 10**max_space_size)
-    plt.xlabel("Search Space Size (log scale)")
+    # plt.xscale("log")  # Use log scale for conflicts
+    if z3_key == "conflicts":
+        # plt.xlim(1, 10**max_space_size)
+        plt.xlabel("Z3 Conflicts")
+        plt.title("Accuracy vs. Z3 Conflicts")
+    elif z3_key == "propagations":
+        plt.xlabel("Z3 Propagations")
+        plt.title("Accuracy vs. Z3 Propagations")
     plt.ylabel("Accuracy (%)")
-    plt.title("Accuracy vs. Search Space Size for Multiple Models")
     plt.grid(True)
     plt.legend(title="Model")
     plt.savefig(output_file_name)
@@ -178,7 +195,7 @@ def main():
     if args.analysis == 'hidden_reasoning':
         plot_hidden_reasoning_vs_search_space(data_by_model[args.model_list[0]], args.output_file)
     elif args.analysis == 'accuracy':
-        plot_accuracy_vs_search_space(data_by_model, args.model_list, args.output_file, args.max_space_size)
+        plot_accuracy_vs_z3(data_by_model, args.model_list, args.output_file, args.max_space_size)
     elif args.analysis == 'reasoning_length':
         plot_reasoning_length_vs_search_space(data_by_model, args.model_list, args.output_file, args.max_space_size)
 
@@ -195,20 +212,20 @@ python zebra_logic_analysis/_uni_figure.py --analysis hidden_reasoning --model_l
 
 
 # For showing accuracy histograms
-python zebra_logic_analysis/_uni_figure.py --analysis accuracy \
+python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
     --model_list o1-preview-2024-09-12-v2 o1-mini-2024-09-12-v3 gpt-4o-2024-08-06 gpt-4o-mini-2024-07-18 \
-    --output_file zebra_logic_analysis/openai.accuracy_hists.png --max_space_size 18
+    --output_file zebra_logic_analysis/openai.accuracy_hists.z3.png --max_space_size 18
 
 
-python zebra_logic_analysis/_uni_figure.py --analysis accuracy \
+python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
     --model_list Llama-3.2-3B-Instruct@together Meta-Llama-3.1-8B-Instruct Meta-Llama-3.1-70B-Instruct Llama-3.1-405B-Instruct-Turbo \
-    --output_file zebra_logic_analysis/llama.accuracy_hists.png --max_space_size 18
+    --output_file zebra_logic_analysis/llama.accuracy_hists.z3.png --max_space_size 18
 
 
 # For showing accuracy histograms 
-python zebra_logic_analysis/_uni_figure.py --analysis accuracy \
+python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
     --model_list "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=1" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=4" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=8" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=16" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=32" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=64" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=128" "o1-mini-2024-09-12-v3"  \
-    --output_file zebra_logic_analysis/bon_4o_mini.accuracy_hists.png --max_space_size 18
+    --output_file zebra_logic_analysis/bon_4o_mini.accuracy_hists.z3.png --max_space_size 18
 # "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=256" \
 
 

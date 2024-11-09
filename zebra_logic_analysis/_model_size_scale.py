@@ -191,3 +191,64 @@ print(tabulate(results_df, headers='keys', tablefmt='pretty', showindex=False))
 # use latex format to print the table
 print(results_df.to_latex(index=False))
 # 
+
+"""
+The table will look like:
+
++-------------------------------+--------+--------+--------+-------+---------+----------+
+|             Model             |  All   | Small  | Medium | Large | X-Large | Cell Acc |
++-------------------------------+--------+--------+--------+-------+---------+----------+
+| Llama-3.1-405B-Instruct-Turbo | 32.60% | 81.25% | 22.50% | 1.50% |  0.00%  |  45.80%  |
+|  Meta-Llama-3.1-70B-Instruct  | 24.90% | 67.81% | 10.36% | 1.50% |  0.00%  |  27.98%  |
+|  Meta-Llama-3.1-8B-Instruct   | 12.80% | 39.38% | 0.71%  | 0.00% |  0.00%  |  13.68%  |
+|     Llama-3.2-3B-Instruct     | 7.40%  | 23.12% | 0.00%  | 0.00% |  0.00%  |  13.14%  |
++-------------------------------+--------+--------+--------+-------+---------+----------+
+
+"""
+
+# lets define the size of the four models 
+model_size = {
+    "Llama-3.1-405B-Instruct-Turbo": 405,
+    "Meta-Llama-3.1-70B-Instruct": 70,
+    "Meta-Llama-3.1-8B-Instruct": 8,
+    "Llama-3.2-3B-Instruct": 3
+}
+
+# lets plot the model size vs the overall accuracy in four different size groups 
+accuracy_data = {
+    'Model Size': [],
+    'Overall': [],
+    'Small': [],
+    'Medium': [],
+    'Large': [],
+    'X-Large': []
+}
+
+for _, row in results_df.iterrows():
+    model_name = row['Model']
+    if model_name in model_size:
+        accuracy_data['Model Size'].append(model_size[model_name])
+        accuracy_data['Overall'].append(float(row['All'].rstrip('%')))
+        accuracy_data['Small'].append(float(row['Small'].rstrip('%')))
+        accuracy_data['Medium'].append(float(row['Medium'].rstrip('%')))
+        accuracy_data['Large'].append(float(row['Large'].rstrip('%')))
+        accuracy_data['X-Large'].append(float(row['X-Large'].rstrip('%')))
+
+# Create the plot
+plt.figure(figsize=(12, 8))
+categories = ['Small', 'Medium', 'Large', 'X-Large']  # Removed 'Overall'
+markers = ['s', '^', 'D', 'v']  # Removed one marker
+colors = ['#ff7f0e', '#2ca02c', '#d62728', '#9467bd']  # Removed one color
+
+for cat, marker, color in zip(categories, markers, colors):
+    plt.plot(accuracy_data['Model Size'], accuracy_data[cat], 
+             marker=marker, label=cat, color=color, linewidth=2, 
+             markersize=10)
+
+plt.grid(True, ls="-", alpha=0.2)
+plt.xlabel('Model Size (Billions of Parameters)', fontsize=12)
+plt.ylabel('Accuracy (%)', fontsize=12)
+plt.title('Model Size vs. Accuracy Across Different Puzzle Sizes', fontsize=14)
+plt.legend(fontsize=10)
+plt.tight_layout()
+plt.show()
