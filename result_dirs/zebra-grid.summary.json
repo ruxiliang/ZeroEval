@@ -195,6 +195,19 @@
     "N_Size": 1
   },
   {
+    "Model": "grok-2-1212",
+    "Mode": "greedy",
+    "Puzzle Acc": "27.70",
+    "Cell Acc": "48.16",
+    "No answer": "3.50",
+    "Easy Puzzle Acc": "76.43",
+    "Hard Puzzle Acc": "8.75",
+    "Total Puzzles": 1000,
+    "Reason Lens": "2551.39",
+    "N_Mode": "single",
+    "N_Size": 1
+  },
+  {
     "Model": "gpt-4-0314",
     "Mode": "greedy",
     "Puzzle Acc": "27.10",

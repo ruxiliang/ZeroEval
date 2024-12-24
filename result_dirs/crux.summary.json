@@ -80,6 +80,14 @@
     "Reason Lens": "391.32"
   },
   {
+    "Model": "grok-2-1212",
+    "Mode": "greedy",
+    "Acc": "75.25",
+    "No answer": "0.00",
+    "Total": 800,
+    "Reason Lens": "633.10"
+  },
+  {
     "Model": "Mistral-Large-2",
     "Mode": "greedy",
     "Acc": "75.12",

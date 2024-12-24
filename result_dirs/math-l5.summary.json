@@ -24,6 +24,14 @@
     "Reason Lens": "1209.70"
   },
   {
+    "Model": "grok-2-1212",
+    "Mode": "greedy",
+    "Acc": "60.89",
+    "No answer": "0.00",
+    "Total": 721,
+    "Reason Lens": "1996.57"
+  },
+  {
     "Model": "Qwen2.5-72B-Instruct",
     "Mode": "greedy",
     "Acc": "60.19",

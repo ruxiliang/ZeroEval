@@ -40,6 +40,14 @@
     "Reason Lens": "629.79"
   },
   {
+    "Model": "grok-2-1212",
+    "Mode": "greedy",
+    "Acc": "87.40",
+    "No answer": "0.00",
+    "Total": 2778,
+    "Reason Lens": "812.14"
+  },
+  {
     "Model": "o1-mini-2024-09-12",
     "Mode": "greedy",
     "Acc": "86.72",
@@ -446,13 +454,5 @@
     "No answer": "7.74",
     "Total": 2778,
     "Reason Lens": "280.56"
-  },
-  {
-    "Model": "Rex-v0.1-1.5B",
-    "Mode": "greedy",
-    "Acc": "39.09",
-    "No answer": "4.79",
-    "Total": 2778,
-    "Reason Lens": "329.35"
   }
 ]

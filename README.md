@@ -1,7 +1,7 @@
 # ZeroEval: A Unified Framework for Evaluating Language Models
 
 ZeroEval is a simple unified framework for evaluating (large) language models on various tasks.
-This repository aims to evaluate instruction-tuned LLMs for their zero-shot performance on various reasoning tasks such as MMLU and GSM. We evaluate LLMs with a unified setup by controlling the factors such as prompting, sampling, output parsing, etc. In ZeroEval, we perform **zero-shot** prompting, and instruct LM to output both reasoning and answer in a **json**-formatted output. We are actively adding new tasks. Contributions are welcome! 
+This repository aims to evaluate instruction-tuned LLMs for their zero-shot performance on various reasoning tasks such as MMLU and GSM. We evaluate LLMs with a unified setup by controlling the factors such as prompting, sampling, output parsing, etc. In ZeroEval, we perform **zero-shot** prompting, and instruct LM to output both reasoning and answer in a **json**-formatted output. We are actively adding new tasks. Contributions are welcome!
 
 - Leaderboard: [https://hf.co/spaces/allenai/ZeroEval](https://huggingface.co/spaces/allenai/ZeroEval)
 - [X post](https://x.com/billyuchenlin/status/1814037110577578377)
@@ -9,12 +9,12 @@ This repository aims to evaluate instruction-tuned LLMs for their zero-shot perf
 
 ## Todo
 
-- [ ] Support new tasks (GPPA, AIME, etc.) 
+- [ ] Support new tasks (GPPA, AIME, etc.)
 - [ ] Prefix-prefill for open models such that the parsing is easier
 - [ ] Add other formatting options (e.g. markup language instead of json, etc.)
 
 
-## Installation 
+## Installation
 
 <details>
   <summary> Click to expand </summary>
@@ -22,16 +22,16 @@ This repository aims to evaluate instruction-tuned LLMs for their zero-shot perf
 ```bash
 conda create -n zeroeval python=3.10
 conda activate zeroeval
-# pip install vllm -U # pip install -e vllm 
+# pip install vllm -U # pip install -e vllm
 pip install vllm -U
 pip install -r requirements.txt
-# export HF_HOME=/path/to/your/custom/cache_dir/ 
+# export HF_HOME=/path/to/your/custom/cache_dir/
 ```
 
 </details>
 
 
-## Tasks 
+## Tasks
 
 - [MMLU-redux](https://arxiv.org/abs/2406.04127) (`-d mmlu-redux`)
 - [ZebraLogic](https://huggingface.co/blog/yuchenlin/zebra-logic) (`-d zebra-grid`)
@@ -57,8 +57,8 @@ pip install -r requirements.txt
 
 More examples can be found in the `scripts` folder, e.g., the [scripts/_MMLU_redux.md](scripts/_MMLU_redux.md) and [scripts/_GSM.md](scripts/_GSM.md) files as well as [`scripts/local/crux.sh`](ZeroEval/scripts/local/crux.sh).
 
-### Arguments  
- 
+### Arguments
+
 
 <details>
 <summary>Command Line Arguments</summary>
@@ -79,7 +79,7 @@ More examples can be found in the `scripts` folder, e.g., the [scripts/_MMLU_red
 
 </details>
 
-## Results 
+## Results
 
 🚨 View results on our Leaderboard: [https://hf.co/spaces/allenai/ZeroEval](https://huggingface.co/spaces/allenai/ZeroEval)
 
@@ -93,21 +93,21 @@ More examples can be found in the `scripts` folder, e.g., the [scripts/_MMLU_red
 
 
 
-<!-- 
+<!--
 python src/evaluation/mcqa_eval.py mmlu-redux
 python src/evaluation/math_eval.py math-l5
 python src/evaluation/zebra_grid_eval.py
 python src/evaluation/crux_eval.py
 python src/evaluation/summarize.py
 
-python src/evaluation/math_eval.py gsm 
+python src/evaluation/math_eval.py gsm
  -->
 
-<!-- 
-### Changelogs 
+<!--
+### Changelogs
 
-- 08/02/2024: added Gemini 1.5 Pro Exp 0801 and CRUX results 
-- 07/31/2024: added Meta-Llama-3.1-70B-Instruct and gemma-2-2b-it 
+- 08/02/2024: added Gemini 1.5 Pro Exp 0801 and CRUX results
+- 07/31/2024: added Meta-Llama-3.1-70B-Instruct and gemma-2-2b-it
 - 07/29/2024: added Llama-3.1-8B, Mistral-Large-2, and deepseek-coder-v2-0724  -->
 
 ## Citation
@@ -128,14 +128,14 @@ If you find ZeroEval useful, please cite it as follows in your publication:
 [![Star History Chart](https://api.star-history.com/svg?repos=WildEval/ZeroEval&type=Date)](https://star-history.com/#WildEval/ZeroEval&Date)
 
 
-<!-- 
+<!--
 
 
 
 bash zero_eval_api.sh -f openai -d zebra-grid -m openai/o1-mini-2024-09-12 -p o1-mini-2024-09-12-v2 -s 4
-wait 
+wait
 bash zero_eval_api.sh -f openai -d zebra-grid -m openai/o1-preview-2024-09-12 -p o1-preview-2024-09-12-v2 -s 4
-wait 
+wait
 
 
 

@@ -385,6 +385,15 @@ def openai_chat_request(
             )
             model = model.replace("@lepton", "")
             # print(model, client.api_key, client.base_url)
+        elif model.endswith("@xai"):
+            assert (
+                os.environ.get("XAI_API_KEY") is not None
+            ), "Please set XAI_API_KEY in the environment variables."
+            client = OpenAI(
+                api_key=os.environ.get("XAI_API_KEY"),
+                base_url="https://api.x.ai/v1",
+            )
+            model = model.replace("@xai", "")
         else:
             client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
             model = model.split("/")[-1]
