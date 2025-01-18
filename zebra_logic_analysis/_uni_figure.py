@@ -66,8 +66,18 @@ def plot_hidden_reasoning_vs_search_space(data, output_file_name):
     y_fit = poly(x_fit)
     plt.plot(10**x_fit, y_fit, color='green', label='Polynomial Fit (degree 2)', linewidth=2)
 
-    plt.savefig(output_file_name, dpi=300)
-    print(f"Saved the plot to {output_file_name}")
+    # plt.savefig(output_file_name, dpi=300)
+    # print(f"Saved the plot to {output_file_name}")
+    
+    # print the total and avg number of hidden reasoning tokens
+    total_tokens = df['hidden_reasoning_token'].sum()
+    avg_tokens = df['hidden_reasoning_token'].mean()
+    print(f"Total hidden reasoning tokens: {total_tokens:,.0f}")
+    print(f"Average hidden reasoning tokens per puzzle: {avg_tokens:,.1f}")
+
+    
+
+
 
 
 def plot_hidden_reasoning_vs_search_space_v2(data, output_file_name):
@@ -103,8 +113,14 @@ def plot_hidden_reasoning_vs_search_space_v2(data, output_file_name):
     y_fit = poly(x_fit)
     plt.plot(10**x_fit, y_fit, color='green', label='Polynomial Fit (degree 2)', linewidth=2)
 
-    plt.savefig(output_file_name, dpi=300)
-    print(f"Saved the plot to {output_file_name}")
+    # print the total and avg number of hidden reasoning tokens
+    total_tokens = df['visible_reasoning_token'].sum()
+    avg_tokens = df['visible_reasoning_token'].mean()
+    print(f"Total visible reasoning tokens: {total_tokens:,.0f}")
+    print(f"Average visible reasoning tokens per puzzle: {avg_tokens:,.1f}")
+
+    # plt.savefig(output_file_name, dpi=300)
+    # print(f"Saved the plot to {output_file_name}")
 
 def plot_accuracy_vs_search_space_v1(data_by_model, model_list, output_file_name, max_space_size):
     plt.figure(figsize=(10, 6))
@@ -170,29 +186,78 @@ def plot_accuracy_vs_search_space(data_by_model, model_list, output_file_name, m
     plt.savefig(output_file_name)
     print(f"Saved the plot to {output_file_name}")
 
+# def plot_reasoning_length_vs_search_space(data_by_model, model_list, output_file_name, max_space_size):
+#     plt.figure(figsize=(20, 5))
+#     for model in model_list:
+#         model_data = data_by_model[model]
+#         df = pd.DataFrame(model_data)
+#         df["search_space_size"] = df["size"].apply(search_space_size)
+#         reasoning_length_data = df.groupby("search_space_size", as_index=False).apply(
+#             lambda group: pd.Series({
+#                 # "average_reasoning_length": group["output"].apply(lambda x: len(x[0])).mean()
+#                 # "average_reasoning_length": group["output"].apply(lambda x: len(x[0].split('solution\":')[0])).mean()
+#                 "average_reasoning_length": group["output"].apply(lambda x: len(x[0].split('solution\":')[0])).mean()/4
+#                 # "average_reasoning_length": group["reasoning"].apply(lambda x: len(x)).mean()
+#             })
+#         ).reset_index(drop=True)
+#         sns.lineplot(data=reasoning_length_data, x="search_space_size", y="average_reasoning_length", marker="o", label=model)
+
+#     plt.xscale("log")
+#     plt.xlim(1, 10**max_space_size)
+#     plt.xlabel("Search Space Size (log scale)")
+#     plt.ylabel("# Visible Reasoning Tokens")
+#     plt.title("# Visible Reasoning Tokens vs. Search Space Size for Multiple Models")
+#     plt.grid(True)
+#     plt.legend(title="Model")
+#     plt.savefig(output_file_name)
+#     print(f"Saved the plot to {output_file_name}")
+
 def plot_reasoning_length_vs_search_space(data_by_model, model_list, output_file_name, max_space_size):
     plt.figure(figsize=(20, 5))
+    
+    # Define bins in log space
+    bin_edges = np.logspace(0, max_space_size, num=20)  # 15 bins from 10^0 to 10^max_space_size
+    
     for model in model_list:
         model_data = data_by_model[model]
         df = pd.DataFrame(model_data)
         df["search_space_size"] = df["size"].apply(search_space_size)
-        reasoning_length_data = df.groupby("search_space_size", as_index=False).apply(
-            lambda group: pd.Series({
-                # "average_reasoning_length": group["output"].apply(lambda x: len(x[0])).mean()
-                # "average_reasoning_length": group["output"].apply(lambda x: len(x[0].split('solution\":')[0])).mean()
-                "average_reasoning_length": group["output"].apply(lambda x: len(x[0].split('solution\":')[0])).mean()/4
-                # "average_reasoning_length": group["reasoning"].apply(lambda x: len(x)).mean()
-            })
-        ).reset_index(drop=True)
-        sns.lineplot(data=reasoning_length_data, x="search_space_size", y="average_reasoning_length", marker="o", label=model)
+        
+        # Bin the data
+        df['space_size_bin'] = pd.cut(df['search_space_size'], bins=bin_edges, labels=bin_edges[:-1])
+        
+        # Calculate average reasoning length for each bin
+        reasoning_length_data = []
+        for name, group in df.groupby("space_size_bin"):
+            if len(group) > 0:  # Only process non-empty groups
+                reasoning_length_data.append({
+                    "search_space_size": name,
+                    "average_reasoning_length": group["output"].apply(
+                        lambda x: len(x[0].split('solution\":')[0])).mean()/4
+                })
+        
+        reasoning_length_data = pd.DataFrame(reasoning_length_data)
+        if not reasoning_length_data.empty:  # Only plot if we have data
+            clean_name = clean_model_name(model)
+            sns.lineplot(data=reasoning_length_data, x="search_space_size", 
+                        y="average_reasoning_length", marker="o", label=clean_name)
+        
+    # Print total reasoning tokens for each model
+    for model in model_list:
+        model_data = data_by_model[model]
+        df = pd.DataFrame(model_data)
+        total_tokens = df["output"].apply(lambda x: len(x[0].split('solution\":')[0])).sum()/4
+        clean_name = clean_model_name(model)
+        print(f"Total reasoning tokens for {clean_name}: {total_tokens:.0f} (average: {total_tokens/len(df):.2f})")
 
     plt.xscale("log")
     plt.xlim(1, 10**max_space_size)
     plt.xlabel("Search Space Size (log scale)")
     plt.ylabel("# Visible Reasoning Tokens")
-    plt.title("# Visible Reasoning Tokens vs. Search Space Size for Multiple Models")
+    plt.title("# Visible Reasoning Tokens vs. Search Space Size")
     plt.grid(True)
     plt.legend(title="Model")
+    plt.tight_layout()
     plt.savefig(output_file_name)
     print(f"Saved the plot to {output_file_name}")
 

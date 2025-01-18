@@ -40,7 +40,7 @@ def load_data(model_list, base_path):
         data_by_model[model] = data
     return data_by_model
 
-def plot_hidden_reasoning_vs_z3_v1(data, output_file_name, z3_key="conflicts"):
+def plot_hidden_reasoning_vs_z3(data, output_file_name, z3_key="conflicts"):
     hidden_reasoning_token = [d["hidden_reasoning_token"] for d in data]
     size = [d["size"] for d in data]
     search_space_sizes = [search_space_size(s) for s in size]
@@ -93,7 +93,7 @@ def plot_hidden_reasoning_vs_z3_v1(data, output_file_name, z3_key="conflicts"):
     # print(f"Saved the plot to {output_file_name}")
 
 
-def plot_hidden_reasoning_vs_z3(data, output_file_name, z3_key="conflicts"):
+def plot_hidden_reasoning_vs_z3_v2(data, output_file_name, z3_key="conflicts"):
     hidden_reasoning_token = [d["hidden_reasoning_token"] for d in data]
     size = [d["size"] for d in data]
     search_space_sizes = [search_space_size(s) for s in size]
@@ -107,7 +107,7 @@ def plot_hidden_reasoning_vs_z3(data, output_file_name, z3_key="conflicts"):
         'solved': solved_status
     })
 
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(9, 6))
     
     # First plot the individual points
     sns.scatterplot(data=df, x='z3_conflicts', y='hidden_reasoning_token', 
@@ -120,16 +120,18 @@ def plot_hidden_reasoning_vs_z3(data, output_file_name, z3_key="conflicts"):
                     s=100)  # Point size
     
     # Then plot the average line
-    df["z3_conflicts_bin"] = pd.qcut(df["z3_conflicts"], q=100, duplicates='drop')
+    df["z3_conflicts_bin"] = pd.qcut(df["z3_conflicts"], q=15, duplicates='drop')
     tokens_by_conflicts = df.groupby("z3_conflicts_bin")["hidden_reasoning_token"].mean()
     bin_centers = df.groupby("z3_conflicts_bin")["z3_conflicts"].mean()
     plt.plot(bin_centers, tokens_by_conflicts, 
              color='green', linewidth=2, label='Average',
              zorder=5)  # Put line on top of points
-
-    plt.xlabel("Z3 Conflicts")
+    # set x-axis limit to 80 
+    plt.xlim(0, 80)
+    plt.ylim(0, 15000)
+    plt.xlabel("# Z3 Conflicts")
     plt.ylabel("Hidden CoT Tokens")
-    plt.title(f"Hidden CoT Tokens vs. Z3 Conflicts")
+    # plt.title(f"Hidden CoT Tokens vs. Z3 Conflicts")
     plt.grid(True)
     
     # Update legend
@@ -179,16 +181,16 @@ def plot_hidden_reasoning_vs_z3(data, output_file_name, z3_key="conflicts"):
 #     print(f"Saved the plot to {output_file_name}")
 
 def plot_accuracy_vs_z3(data_by_model, model_list, output_file_name, max_space_size, z3_key="conflicts"):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(6, 6))
     for model in model_list:
         model_data = data_by_model[model]
         df = pd.DataFrame(model_data)
         df["z3_conflicts"] = df["id"].apply(lambda x: z3_stat[x]["conflicts"])
         # Bin the z3_conflicts and calculate accuracy for each bin
-        df["z3_conflicts_bin"] = pd.qcut(df["z3_conflicts"], q=15, duplicates='drop')
+        df["z3_conflicts_bin"] = pd.qcut(df["z3_conflicts"], q=10, duplicates='drop')
         # also for the z3_propagations
         df["z3_propagations"] = df["id"].apply(lambda x: z3_stat[x]["propagations"])
-        df["z3_propagations_bin"] = pd.qcut(df["z3_propagations"], q=15, duplicates='drop')
+        df["z3_propagations_bin"] = pd.qcut(df["z3_propagations"], q=10, duplicates='drop')
         if z3_key == "conflicts":
             accuracy_by_conflicts = df.groupby("z3_conflicts_bin")["solved"].mean() * 100
             bin_centers = df.groupby("z3_conflicts_bin")["z3_conflicts"].mean()
@@ -199,14 +201,18 @@ def plot_accuracy_vs_z3(data_by_model, model_list, output_file_name, max_space_s
         # Plot accuracy vs z3_conflicts
         plt.plot(bin_centers, accuracy_by_conflicts, marker='o', label=clean_model_name(model))
 
+    # set the x-axis limit with max_space_size
+    plt.xlim(0, max_space_size)
+    plt.ylim(None, 102)
+
     # plt.xscale("log")  # Use log scale for conflicts
     if z3_key == "conflicts":
         # plt.xlim(1, 10**max_space_size)
         plt.xlabel("Z3 Conflicts")
-        plt.title("Accuracy vs. Z3 Conflicts")
+        # plt.title("Accuracy vs. Z3 Conflicts")
     elif z3_key == "propagations":
         plt.xlabel("Z3 Propagations")
-        plt.title("Accuracy vs. Z3 Propagations")
+        # plt.title("Accuracy vs. Z3 Propagations")
     plt.ylabel("Accuracy (%)")
     plt.grid(True)
     plt.legend(title="Model")
@@ -258,7 +264,7 @@ def main():
     })
 
     if args.analysis == 'hidden_reasoning':
-        plot_hidden_reasoning_vs_z3(data_by_model[args.model_list[0]], args.output_file)
+        plot_hidden_reasoning_vs_z3_v2(data_by_model[args.model_list[0]], args.output_file)
     elif args.analysis == 'accuracy':
         plot_accuracy_vs_z3(data_by_model, args.model_list, args.output_file, args.max_space_size)
     elif args.analysis == 'reasoning_length':
@@ -271,26 +277,30 @@ if __name__ == "__main__":
 """
 
 # For showing hidden reasoning token vs search space size
-python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning --model_list o1-preview-2024-09-12-v2 --output_file zebra_logic_analysis/o1_preview.hidden_cot.z3.png
-python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning --model_list o1-mini-2024-09-12-v3 --output_file zebra_logic_analysis/o1_mini.hidden_cot.z3.png
+python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning --model_list o1-preview-2024-09-12-v2 --output_file zebra_logic_analysis/o1_preview.hidden_cot.z3_v2.pdf
+python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning --model_list o1-mini-2024-09-12-v3 --output_file zebra_logic_analysis/o1_mini.hidden_cot.z3_v2.png
 
 
 
 # For showing accuracy histograms
 python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
     --model_list o1-preview-2024-09-12-v2 o1-mini-2024-09-12-v3 gpt-4o-2024-08-06 gpt-4o-mini-2024-07-18 \
-    --output_file zebra_logic_analysis/openai.accuracy_hists.z3.png --max_space_size 18
+    --output_file zebra_logic_analysis/openai.accuracy_hists.z3.png --max_space_size 80
 
 
 python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
     --model_list Llama-3.2-3B-Instruct@together Meta-Llama-3.1-8B-Instruct Meta-Llama-3.1-70B-Instruct Llama-3.1-405B-Instruct-Turbo \
-    --output_file zebra_logic_analysis/llama.accuracy_hists.z3.png --max_space_size 18
+    --output_file zebra_logic_analysis/llama.accuracy_hists.z3.png --max_space_size 40
+
+python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
+    --model_list "Qwen2.5-3B-Instruct" "Qwen2.5-7B-Instruct" "Qwen2.5-32B-Instruct" "Qwen2.5-72B-Instruct" \
+    --output_file zebra_logic_analysis/qwen.accuracy_hists.z3.png --max_space_size 40
 
 
 # For showing accuracy histograms 
 python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
     --model_list "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=1" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=4" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=8" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=16" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=32" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=64" "bon_all/gpt-4o-mini-2024-07-18.best_of_n.K=128" "o1-mini-2024-09-12-v3"  \
-    --output_file zebra_logic_analysis/bon_4o_mini.accuracy_hists.z3.png --max_space_size 18
+    --output_file zebra_logic_analysis/bon_4o_mini.accuracy_hists.z3.png --max_space_size 80
 
 
 
