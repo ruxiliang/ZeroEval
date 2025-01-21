@@ -1,5 +1,31 @@
 [
   {
+    "Model": "o1-2024-12-17",
+    "Mode": "greedy",
+    "Puzzle Acc": "81.00",
+    "Cell Acc": "78.74",
+    "No answer": "0.20",
+    "Easy Puzzle Acc": "98.21",
+    "Hard Puzzle Acc": "74.31",
+    "Total Puzzles": 1000,
+    "Reason Lens": "1197.51",
+    "N_Mode": "single",
+    "N_Size": 1
+  },
+  {
+    "Model": "deepseek-R1",
+    "Mode": "greedy",
+    "Puzzle Acc": "78.70",
+    "Cell Acc": "80.54",
+    "No answer": "0.00",
+    "Easy Puzzle Acc": "98.57",
+    "Hard Puzzle Acc": "70.97",
+    "Total Puzzles": 1000,
+    "Reason Lens": "586.33",
+    "N_Mode": "single",
+    "N_Size": 1
+  },
+  {
     "Model": "o1-preview-2024-09-12",
     "Mode": "greedy",
     "Puzzle Acc": "71.40",
@@ -61,6 +87,19 @@
     "Hard Puzzle Acc": "39.17",
     "Total Puzzles": 1000,
     "Reason Lens": "993.28",
+    "N_Mode": "single",
+    "N_Size": 1
+  },
+  {
+    "Model": "deepseek-v3",
+    "Mode": "greedy",
+    "Puzzle Acc": "42.10",
+    "Cell Acc": "42.04",
+    "No answer": "27.90",
+    "Easy Puzzle Acc": "90.00",
+    "Hard Puzzle Acc": "23.47",
+    "Total Puzzles": 1000,
+    "Reason Lens": "2158.00",
     "N_Mode": "single",
     "N_Size": 1
   },

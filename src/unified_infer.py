@@ -303,7 +303,12 @@ if __name__ == "__main__":
                 result = api(**openai_args)
                 # for o1 
                 if args.model_name.startswith("openai/o1-"): # or type(result) == tuple:
-                    content, hidden_reasoning_token = result
+                    try:
+                        content, hidden_reasoning_token = result
+                    except Exception as e:
+                        print(f"Error: {e}")
+                        content = result
+                        hidden_reasoning_token = 0
                     # print(f"hidden_reasoning_token: {hidden_reasoning_token}")
                     if "hidden_reasoning_token" not in metadata:
                         metadata["hidden_reasoning_token"] = []

@@ -138,6 +138,12 @@ bash zero_eval_api.sh -f openai -d zebra-grid -m openai/o1-preview-2024-09-12 -p
 wait
 
 
+bash zero_eval_api.sh -f openai -d zebra-grid -m openai/o1-2024-12-17 -p o1-2024-12-17 -s 1
+wait
+
+model_name="openai/o1-2024-12-17"
+
+
 
 bash zero_eval_api.sh -d zebra-grid -f openai -m openai/gpt-4o-mini-2024-07-18 -p gpt-4o-mini-2024-07-18 -s 1 -n 32 -r "sampling" -t 0.5
 
