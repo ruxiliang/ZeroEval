@@ -77,10 +77,11 @@ models = ["gpt-4o-2024-08-06", "gpt-4o-mini-2024-07-18", "o1-preview-2024-09-12"
           "gemma-2-27b-it@nvidia", "gemma-2-9b-it@nvidia", "gemma-2-2b-it", 
           "gemini-1.5-flash-exp-0827",  "gemini-1.5-pro-exp-0827", 
           "claude-3-5-sonnet-20241022", "Mistral-Large-2", "Mixtral-8x7B-Instruct-v0.1", 
-          "Phi-3.5-mini-instruct", "deepseek-v2.5-0908", "Llama-3.2-3B-Instruct@together"
+          "Phi-3.5-mini-instruct", "deepseek-v2.5-0908", "Llama-3.2-3B-Instruct@together",
+          "o1-2024-12-17", "deepseek-v3", "deepseek-r1"
         ]
 
-models = [
+models_llama = [
     # "gpt-4o-2024-08-06", "gpt-4o-mini-2024-07-18", "o1-preview-2024-09-12", "o1-mini-2024-09-12-v3",  
           "Meta-Llama-3.1-8B-Instruct", "Meta-Llama-3.1-70B-Instruct", "Llama-3.1-405B-Instruct-Turbo", "Llama-3.2-3B-Instruct@together"
         #   "Meta-Llama-3-8B-Instruct", "Meta-Llama-3-70B-Instruct",

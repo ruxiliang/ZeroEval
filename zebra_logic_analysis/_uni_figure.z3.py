@@ -1,4 +1,5 @@
 import json
+
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,11 +26,17 @@ def clean_model_name(model_name):
         # Extract K value and return simplified name
         k_value = model_name.split("K=")[1]
         return f"gpt-4o (pass@{k_value})"
-    model_name = model_name.replace("o1-mini-2024-09-12-v3", "o1-mini (pass@1)")
-    model_name = model_name.replace("o1-preview-2024-09-12-v2", "o1-preview (pass@1)")
+    suffix = ""
+    model_name = model_name.replace("o1-mini-2024-09-12-v3", f"o1-mini{suffix}")
+    model_name = model_name.replace("o1-preview-2024-09-12-v2", f"o1-preview{suffix}")
+    model_name = model_name.replace("o1-2024-12-17", f"o1{suffix}")
+    model_name = model_name.replace("deepseek-r1", f"deepseek-r1{suffix}")
     model_name = model_name.replace("Meta-Llama", "Llama")
     model_name = model_name.replace("@together", "")
     model_name = model_name.replace("-Turbo", "")
+
+    model_name = model_name.replace("-2024-08-06", "")
+    model_name = model_name.replace("-2024-07-18", "")
     return model_name
     
 def load_data(model_list, base_path):
@@ -40,60 +47,42 @@ def load_data(model_list, base_path):
         data_by_model[model] = data
     return data_by_model
 
-def plot_hidden_reasoning_vs_z3(data, output_file_name, z3_key="conflicts"):
-    hidden_reasoning_token = [d["hidden_reasoning_token"] for d in data]
-    size = [d["size"] for d in data]
-    search_space_sizes = [search_space_size(s) for s in size]
-    solved_status = [d["solved"] for d in data]
-    z3_conflicts = [z3_stat[d["id"]]["conflicts"] for d in data]
-
-    df = pd.DataFrame({
-        'hidden_reasoning_token': hidden_reasoning_token,
-        'search_space_size': search_space_sizes,
-        'z3_conflicts': z3_conflicts,
-        'solved': solved_status
-    })
-    # Bin the z3_conflicts and calculate mean hidden reasoning tokens for each bin
-    df["z3_conflicts_bin"] = pd.qcut(df["z3_conflicts"], q=15, duplicates='drop')
-    tokens_by_conflicts = df.groupby("z3_conflicts_bin")["hidden_reasoning_token"].mean()
-    bin_centers = df.groupby("z3_conflicts_bin")["z3_conflicts"].mean()
-
+def plot_hidden_reasoning_vs_z3(data_by_model, model_list, output_file_name, z3_key="conflicts"):
     plt.figure(figsize=(10, 6))
-    # Plot average hidden reasoning tokens vs z3_conflicts
-    plt.plot(bin_centers, tokens_by_conflicts, marker='o', color='#4a90e2', linewidth=2)
+    
+    for model in model_list:
+        data = data_by_model[model]
+        hidden_reasoning_token = [d["hidden_reasoning_token"] for d in data]
+        size = [d["size"] for d in data]
+        search_space_sizes = [search_space_size(s) for s in size]
+        solved_status = [d["solved"] for d in data]
+        z3_conflicts = [z3_stat[d["id"]]["conflicts"] for d in data]
+
+        df = pd.DataFrame({
+            'hidden_reasoning_token': hidden_reasoning_token,
+            'search_space_size': search_space_sizes,
+            'z3_conflicts': z3_conflicts,
+            'solved': solved_status
+        })
+        # Bin the z3_conflicts and calculate mean hidden reasoning tokens for each bin
+        df["z3_conflicts_bin"] = pd.qcut(df["z3_conflicts"], q=15, duplicates='drop')
+        tokens_by_conflicts = df.groupby("z3_conflicts_bin")["hidden_reasoning_token"].mean()
+        bin_centers = df.groupby("z3_conflicts_bin")["z3_conflicts"].mean()
+
+        # Plot average hidden reasoning tokens vs z3_conflicts
+        plt.plot(bin_centers, tokens_by_conflicts, marker='o', linewidth=2, label=clean_model_name(model))
 
     plt.xlabel("Z3 Conflicts")
     plt.ylabel("Average Hidden CoT Tokens")
     plt.title("Hidden CoT Tokens vs. Z3 Conflicts")
     plt.grid(True)
+    plt.legend(title="Model")
 
     plt.savefig(output_file_name, dpi=300)
     print(f"Saved the plot to {output_file_name}")
 
-    # plt.figure(figsize=(10, 6))
-    # sns.scatterplot(data=df, x='search_space_size', y='hidden_reasoning_token', 
-    #                 hue='solved', style='solved', 
-    #                 palette={True: '#4a90e2', False: '#d9534f'},
-    #                 markers={True: 'o', False: 'X'}, hue_order=[True, False], legend='full', s=100)
-    # plt.legend(title='Solution Status', labels=['Incorrect', 'Correct'])
-    # plt.xscale('log')
-    # plt.xlabel('Search Space Size (log scale)')
-    # plt.ylabel('# Hidden CoT Tokens')
-    # plt.ylim(0, 20000)
-    # plt.grid(True)
 
-    # log_x = np.log10(df['search_space_size'])
-    # coeffs = np.polyfit(log_x, df['hidden_reasoning_token'], deg=2)
-    # poly = np.poly1d(coeffs)
-    # x_fit = np.linspace(log_x.min(), log_x.max(), 500)
-    # y_fit = poly(x_fit)
-    # plt.plot(10**x_fit, y_fit, color='green', label='Polynomial Fit (degree 2)', linewidth=2)
-
-    # plt.savefig(output_file_name, dpi=300)
-    # print(f"Saved the plot to {output_file_name}")
-
-
-def plot_hidden_reasoning_vs_z3_v2(data, output_file_name, z3_key="conflicts"):
+def plot_hidden_reasoning_vs_z3_v2(data, output_file_name, z3_key="conflicts", max_space_size=80):
     hidden_reasoning_token = [d["hidden_reasoning_token"] for d in data]
     size = [d["size"] for d in data]
     search_space_sizes = [search_space_size(s) for s in size]
@@ -127,8 +116,11 @@ def plot_hidden_reasoning_vs_z3_v2(data, output_file_name, z3_key="conflicts"):
              color='green', linewidth=2, label='Average',
              zorder=5)  # Put line on top of points
     # set x-axis limit to 80 
-    plt.xlim(0, 80)
-    plt.ylim(0, 15000)
+    plt.xlim(0, max_space_size)
+    if "o1.hidden" in output_file_name:
+        plt.ylim(0, 20000)
+    else:
+        plt.ylim(0, 15000)
     plt.xlabel("# Z3 Conflicts")
     plt.ylabel("Hidden CoT Tokens")
     # plt.title(f"Hidden CoT Tokens vs. Z3 Conflicts")
@@ -248,7 +240,7 @@ def plot_reasoning_length_vs_search_space(data_by_model, model_list, output_file
 
 def main():
     parser = argparse.ArgumentParser(description="Unified analysis script for zebra logic puzzles.")
-    parser.add_argument('--analysis', type=str, choices=['hidden_reasoning', 'accuracy', 'reasoning_length'], required=True, help="Type of analysis to perform.")
+    parser.add_argument('--analysis', type=str, choices=['hidden_reasoning', 'accuracy', 'reasoning_length', "hidden_reasoning_v1"], required=True, help="Type of analysis to perform.")
     parser.add_argument('--model_list', nargs='+', required=True, help="List of models to analyze.")
     parser.add_argument('--output_file', type=str, required=True, help="Output file name for the plot.")
     parser.add_argument('--max_space_size', type=float, default=17.5, help="Maximum search space size for x-axis limit.")
@@ -264,7 +256,9 @@ def main():
     })
 
     if args.analysis == 'hidden_reasoning':
-        plot_hidden_reasoning_vs_z3_v2(data_by_model[args.model_list[0]], args.output_file)
+        plot_hidden_reasoning_vs_z3_v2(data_by_model[args.model_list[0]], args.output_file, args.max_space_size)
+    elif args.analysis == 'hidden_reasoning_v1':
+        plot_hidden_reasoning_vs_z3(data_by_model, args.model_list, args.output_file, args.max_space_size)
     elif args.analysis == 'accuracy':
         plot_accuracy_vs_z3(data_by_model, args.model_list, args.output_file, args.max_space_size)
     elif args.analysis == 'reasoning_length':
@@ -277,6 +271,12 @@ if __name__ == "__main__":
 """
 
 # For showing hidden reasoning token vs search space size
+
+python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning_v1 --model_list o1-2024-12-17 --output_file zebra_logic_analysis/o1.hidden_cot.z3_v1.png
+
+python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning_v1 --model_list o1-2024-12-17 o1-preview-2024-09-12-v2 o1-mini-2024-09-12-v3 --output_file zebra_logic_analysis/o1.more.hidden_cot.z3_v1.png
+
+python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning --model_list o1-2024-12-17 --output_file zebra_logic_analysis/o1.hidden_cot.z3_v2.png
 python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning --model_list o1-preview-2024-09-12-v2 --output_file zebra_logic_analysis/o1_preview.hidden_cot.z3_v2.pdf
 python zebra_logic_analysis/_uni_figure.z3.py --analysis hidden_reasoning --model_list o1-mini-2024-09-12-v3 --output_file zebra_logic_analysis/o1_mini.hidden_cot.z3_v2.png
 
@@ -287,6 +287,10 @@ python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
     --model_list o1-preview-2024-09-12-v2 o1-mini-2024-09-12-v3 gpt-4o-2024-08-06 gpt-4o-mini-2024-07-18 \
     --output_file zebra_logic_analysis/openai.accuracy_hists.z3.png --max_space_size 80
 
+    
+python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
+    --model_list o1-2024-12-17 deepseek-r1 o1-preview-2024-09-12-v2 o1-mini-2024-09-12-v3 gpt-4o-2024-08-06 gpt-4o-mini-2024-07-18 \
+    --output_file zebra_logic_analysis/openai.new.accuracy_hists.z3.png --max_space_size 82
 
 python zebra_logic_analysis/_uni_figure.z3.py --analysis accuracy \
     --model_list Llama-3.2-3B-Instruct@together Meta-Llama-3.1-8B-Instruct Meta-Llama-3.1-70B-Instruct Llama-3.1-405B-Instruct-Turbo \
