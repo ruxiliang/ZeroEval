@@ -1,105 +1,101 @@
 # GPLANET Template
 
-GPLANET = """**Task Description:** You are required to complete a simple task within a room.
+GPLANET = """
+
+# Instructions
+
+You are an intelligent robot that can move around a room and interact with objects.
+We will provide you with a list of objects in the room, and a task description for you to complete.
+The object information is given in a json format and there are 3D coordinates for each object, and their rotations as well as their receptacle (parent) information.
+The task description will be given in a natural language description. You are given a shuffled list of candidate actions that you can perform.
+Your job is to complete the task by selecting the correct actions and ordering them in the proper sequence.
+
+## Detailed Instructions
+
+1. **Review room objects:** Examine the list of objects below, noting each object's attributes: id, object_type, position, rotation, and parent_receptacle.
+2. **Understand the task:** Read the task description carefully to identify the goal.
+3. **Evaluate candidate actions:** Review the provided actions. Exclude exactly **two** irrelevant actions that are not needed in the final sequence.
+4. **Sequence the actions:** Select the necessary actions and order them correctly to complete the task.
+5. **Submit your answer:** Include reasoning if desired, but conclude with the answer sequence, ending the response afterward.
 
 
-**Instructions:**
-1. **Examine the objects in the room:** Review the list of objects provided below. Each object includes attributes such as id, object_type, position, rotation, and parent_receptacle.
-2. **Understand the task:** Carefully read the task description to determine what needs to be accomplished.
-3. **Analyze the candidate actions:** A set of candidate actions is provided. **There are exactly ***two*** actions that do not need to appear in the final sequence.** These irrelevant actions should be ignored.
-4. **Select and order the actions:** Identify the correct actions needed to complete the task and arrange them in the proper sequence.
-5. **Provide your answer:** You are allowed to include your reasoning process, but **after giving the answer sequence, you should end the generation**. Your final answer must start with ### and end with END, formatted like ### (A) (B) (C) END.
 
+# Example Task
 
-**Objects in the room:**
+## Objects in the example room
+<objects>
+```json
 [
     {
         "id": "0",
         "object_type": "Agent",
-        "position_x": "1.25",
-        "position_y": "0.900",
-        "position_z": "0.5",
-        "rotation_x": "0",
-        "rotation_y": "0",
-        "rotation_z": "0",
-        "parent_receptacle": ""
+        "position_xyz": "(1.25, 0.900, 0.5)",
+        "rotation_xyz": "(0, 0, 0)",
+        "parent_receptacle": "N/A"
     },
     {
         "id": "8",
         "object_type": "Watch",
-        "position_x": "-0.862",
-        "position_y": "0.552",
-        "position_z": "-0.192",
-        "rotation_x": "0",
-        "rotation_y": "270",
-        "rotation_z": "0",
+        "position_xyz": "(-0.862, 0.552, -0.192)",
+        "rotation_xyz": "(0, 270, 0)",
         "parent_receptacle": "30"
     },
     {
         "id": "30",
         "object_type": "CoffeeTable",
-        "position_x": "-0.711",
-        "position_y": "0.002",
-        "position_z": "-0.364",
-        "rotation_x": "0",
-        "rotation_y": "180",
-        "rotation_z": "0",
-        "parent_receptacle": ""
+        "position_xyz": "(-0.711, 0.002, -0.364)",
+        "rotation_xyz": "(0, 180, 0)",
+        "parent_receptacle": "N/A"
     },
     {
         "id": "36",
         "object_type": "SideTable",
-        "position_x": "1.807",
-        "position_y": "0.000",
-        "position_z": "0.326",
-        "rotation_x": "0",
-        "rotation_y": "270",
-        "rotation_z": "0",
-        "parent_receptacle": ""
+        "position_xyz": "(1.807, 0.000, 0.326)",
+        "rotation_xyz": "(0, 270, 0)",
+        "parent_receptacle": "N/A"
     },
     {
         "id": "14",
         "object_type": "Statue",
-        "position_x": "1.807",
-        "position_y": "0.880",
-        "position_z": "0.537",
-        "rotation_x": "0",
-        "rotation_y": "270",
-        "rotation_z": "0",
+        "position_xyz": "(1.807, 0.880, 0.537)",
+        "rotation_xyz": "(0, 270, 0)",
         "parent_receptacle": "36"
     },
     {
         "id": "15",
         "object_type": "Statue",
-        "position_x": "1.682",
-        "position_y": "0.880",
-        "position_z": "0.220",
-        "rotation_x": "0",
-        "rotation_y": "90",
-        "rotation_z": "0",
+        "position_xyz": "(1.682, 0.880, 0.220)",
+        "rotation_xyz": "(0, 90, 0)",
         "parent_receptacle": "36"
     }
 ]
+```
+</objects>
+Note that there are more objects in the room, but we only show the relevant ones for the example task.
 
+## Task Description
 
-**Task Instruction:**
+<task>
 Move the wristwatch from the coffee table to the dresser.
+</task>
+
+## Candidate Actions
+
+Here are the candidate actions that you can perform:
+
+<candidate_actions>
+- (A) Turn right and walk towards the bookshelf.
+- (B) Put the wristwatch down on the dresser to the right of the grey statue.
+- (C) Pick up a book from the coffee table.
+- (D) Turn left and walk to the dresser with statues on it.
+- (E) Pick up the wristwatch from the coffee table.
+- (F) Turn left and walk to the coffee table.
+</candidate_actions>
+
+## Expected response from the robotic agent
 
 
-**Candidate Actions:**
-(A) Turn right and walk towards the bookshelf.
-(B) Put the wristwatch down on the dresser to the right of the grey statue.
-(C) Pick up a book from the coffee table.
-(D) Turn left and walk to the dresser with statues on it.
-(E) Pick up the wristwatch from the coffee table.
-(F) Turn left and walk to the coffee table.
-
-
-**Assistant's Response:**
-
-
-To move the wristwatch from the coffee table to the dresser, perform the following actions:
-
+To move the wristwatch from the coffee table to the dresser, a robot should perform the following actions in the following order:
 
 1. **Turn left and walk to the coffee table.** (Action F)
 2. **Pick up the wristwatch from the coffee table.** (Action E)
@@ -109,22 +105,52 @@ To move the wristwatch from the coffee table to the dresser, perform the followi
 
 The irrelevant actions are:
 
-
 - (A) Turn right and walk towards the bookshelf.
 - (C) Pick up a book from the coffee table.
 
+Therefore, the final output from the model should be:
 
-### (F) (E) (D) (B) END
+<final_action_sequence>
+(F) (E) (D) (B) END
+</final_action_sequence>
+
+# The Current Room, Task, and Candidate Actions
 
 
-**Objects in the room:**
+## Objects in the current room
+
+<objects>
 {objects_str}
+</objects>
 
-
-**Task Instruction:**
+## Task Description to complete for the current room now
+<task>
 {task}
+</task>
 
+## Candidate Actions for the current room
 
-**Candidate Actions:**
+<candidate_actions>
 {actions}
+</candidate_actions>
+
+Note that there are TWO and ONLY TWO irrelevant actions that you should exclude from the final plan. Therefore, your final output should be a sequence of actions that is exactly two actions shorter than the total number of candidate actions. For example, if there are 10 candidate actions, your final output should be a sequence of 8 actions.
+
+
+# Instruction Recap
+
+## Detailed Instructions
+
+1. **Review room objects:** Examine the list of objects below, noting each object's attributes: id, object_type, position, rotation, and parent_receptacle.
+2. **Understand the task:** Read the task description carefully to identify the goal.
+3. **Evaluate candidate actions:** Review the provided actions. Exclude exactly **two** irrelevant actions that are not needed in the final sequence.
+4. **Sequence the actions:** Select the necessary actions and order them correctly to complete the task.
+5. **Submit your answer:** Include reasoning if desired, but conclude with the answer sequence, ending the response afterward.
+
+## Output format
+
+You can think step by step and reason about the task and the candidate actions. Finally, you should output the final action sequence inside the <final_action_sequence> tag (e.g., <final_action_sequence> (A) (B) (C) END </final_action_sequence>).
+
+
+
 """
