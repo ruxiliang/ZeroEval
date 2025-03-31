@@ -39,10 +39,10 @@ def parse_args():
     parser.add_argument('--start_index',default=0, type=int) # 0 means from the beginning of the list
     parser.add_argument('--end_index',default=-1, type=int) # -1 means to the end of the list
     parser.add_argument('--filepath',default="auto", type=str)
-    
+
     parser.add_argument('--cache_filepath', default=None, type=str)
 
-    parser.add_argument('--follow_up_mode', default="N/A", type=str) # N/A means not a follow up 
+    parser.add_argument('--follow_up_mode', default="N/A", type=str) # N/A means not a follow up
     parser.add_argument('--follow_up_file', default=None, type=str) # if you have an existing file
 
     parser.add_argument('--overwrite', action='store_true')
@@ -95,14 +95,14 @@ if __name__ == "__main__":
     args = parse_args()
     args = sanitize_args(args)
 
-   
+
 
     # Load the model
     print("loading model!")
     if args.tokenizer_name == "auto":
         args.tokenizer_name = args.model_name
     if args.engine == "vllm":
-        from vllm import LLM, SamplingParams 
+        from vllm import LLM, SamplingParams
         max_model_len = None if args.max_model_len == -1 else args.max_model_len
         base_model_name_or_path, lora_model_name_or_path = infer_maybe_lora(args.model_name)
         if lora_model_name_or_path:
@@ -112,8 +112,8 @@ if __name__ == "__main__":
             lora_request = None
         llm = LLM(model=base_model_name_or_path, tokenizer=args.tokenizer_name, tensor_parallel_size=args.tensor_parallel_size,
                         download_dir=args.download_dir, dtype=args.dtype, tokenizer_mode=args.tokenizer_mode,
-                        max_model_len=max_model_len, trust_remote_code=True, 
-                        gpu_memory_utilization=args.gpu_memory_utilization,  
+                        max_model_len=max_model_len, trust_remote_code=True,
+                        gpu_memory_utilization=args.gpu_memory_utilization,
                         enable_lora=lora_request is not None
                         )
     elif args.engine == "hf":
@@ -142,13 +142,13 @@ if __name__ == "__main__":
 
     # TODO: we need to support the case when you have an existing file
 
-    
+
     # Data loading
     id_strs, chat_history, model_inputs, metadata = load_eval_data(args)
 
 
 
-    # decide start_index and end_index by num_shards and shard_id  
+    # decide start_index and end_index by num_shards and shard_id
     if args.num_shards > 1:
         num_data = len(id_strs)
         shard_size = num_data // args.num_shards
@@ -156,8 +156,8 @@ if __name__ == "__main__":
         args.end_index = (args.shard_id + 1) * shard_size
         if args.shard_id == args.num_shards - 1:
             args.end_index = num_data
-    
-         
+
+
 
 
     # Decide the output filepath
@@ -202,7 +202,7 @@ if __name__ == "__main__":
                 stop_token_ids += [hf_tokenizer.get_vocab()[potential_end_token]]
     if args.model_name in HF_TEMPLATED_MODELS:
         hf_tokenizer = AutoTokenizer.from_pretrained(args.model_name, trust_remote_code=True)
-        stop_token_ids.append(hf_tokenizer.eos_token_id) 
+        stop_token_ids.append(hf_tokenizer.eos_token_id)
 
 
     outputs = []
@@ -212,7 +212,7 @@ if __name__ == "__main__":
             formatted_outputs = json.load(f)
         for output_item in formatted_outputs:
             outputs.append([output_item["output"]] if type(output_item["output"]) == str else output_item["output"])
-            if args.model_name.startswith("openai/o1-"):
+            if args.model_name.startswith("openai/o"):
                 if "hidden_reasoning_token" not in metadata:
                     metadata["hidden_reasoning_token"] = []
                 metadata["hidden_reasoning_token"].append(output_item["hidden_reasoning_token"])
@@ -221,13 +221,13 @@ if __name__ == "__main__":
 
 
     # Load the existing data from the cache_filepath
-    cache_outputs = {} 
+    cache_outputs = {}
     if args.cache_filepath is not None:
         if os.path.exists(args.cache_filepath):
             with open(args.cache_filepath) as f:
                 cache_data = json.load(f)
             for output_item in cache_data:
-                # if output_item["output"]  is a list and the first string is not empty 
+                # if output_item["output"]  is a list and the first string is not empty
                 if type(output_item["output"]) == list and len(output_item["output"]) > 0 and len(output_item["output"][0]) > 0:
                     cache_outputs[output_item["session_id"]] = output_item
 
@@ -273,7 +273,7 @@ if __name__ == "__main__":
 
         for cur_id in tqdm(range(0, len(todo_inputs)), desc=f"Generating {args.model_name} from {args.start_index} to {args.end_index} on {args.data_name}"):
             # input_text = todo_inputs[cur_id]
-            chat = todo_chats[cur_id] 
+            chat = todo_chats[cur_id]
             current_id_str = todo_ids[cur_id]
             # check if in the cache
             if current_id_str in cache_outputs:
@@ -284,7 +284,7 @@ if __name__ == "__main__":
                     metadata["hidden_reasoning_token"] = []
                 metadata["hidden_reasoning_token"].append(cache_item["hidden_reasoning_token"])
             else:
-                openai_msg = [{"role":"system", "content":"You are a helpful AI assistant."}] 
+                openai_msg = [{"role":"system", "content":"You are a helpful AI assistant."}]
                 for i, chat_item in enumerate(chat):
                     if i % 2 == 0:
                         openai_msg.append({"role":"user","content": chat_item})
@@ -301,8 +301,8 @@ if __name__ == "__main__":
                     "n": args.num_outputs  # Pass the num_outputs argument here
                 }
                 result = api(**openai_args)
-                # for o1 
-                if args.model_name.startswith("openai/o1-"): # or type(result) == tuple:
+                # for o1 and o3
+                if args.model_name.startswith("openai/o"):
                     try:
                         content, hidden_reasoning_token = result
                     except Exception as e:
@@ -314,7 +314,7 @@ if __name__ == "__main__":
                         metadata["hidden_reasoning_token"] = []
                     metadata["hidden_reasoning_token"].append(hidden_reasoning_token)
                 else:
-                    content = result 
+                    content = result
                 outputs.append(content)
             save_outputs(args, id_strs, outputs, chat_history, metadata, model_inputs, filepath)
 

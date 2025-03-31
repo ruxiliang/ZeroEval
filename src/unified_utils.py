@@ -111,6 +111,9 @@ def clear_output(output, model_name):
     """
     You can customize the output clearing logic here based on the model_name.
     """
+    if isinstance(output, list):
+        output = output[0]
+    assert isinstance(output, str), f"the type of output is {type(output)}"
     # print(f"the output is {output}")
     output = output.replace("<|endoftext|>", " ")
     output = output.replace("<pad>", " ")
@@ -415,10 +418,20 @@ def openai_chat_request(
             )
         else:
             # print(f"Requesting chat completion from OpenAI API with model {model}")
-            if model.startswith("o1-"):
+            if model.startswith("o1-") or model.startswith("o3-"):
                 o1_mode = True
                 if messages[0]["role"] == "system":
                     messages = messages[1:]
+                reasoning_effort = None
+                if "-high" in model:
+                    reasoning_effort = "high"
+                elif "-medium" in model:
+                    reasoning_effort = "medium"
+                elif "-low" in model:
+                    reasoning_effort = "low"
+                if reasoning_effort is not None:
+                    model = model.replace("-"+reasoning_effort, "")
+                    kwargs["reasoning_effort"] = reasoning_effort
                 response = client.chat.completions.create(
                     model=model,
                     response_format={"type": "json_object"} if json_mode else None,

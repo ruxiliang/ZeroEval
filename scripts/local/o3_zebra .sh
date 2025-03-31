@@ -4,8 +4,8 @@
 
 DATA_NAME="zebra-grid"
 engine_name="openai"
-model_name="openai/o1-preview-2024-09-12"
-model_pretty_name="o1-preview-2024-09-12"
+model_name="openai/o3-mini-2025-01-31-high"
+model_pretty_name="o3-mini-2025-01-31-high"
 
 run_name="default"
 TEMP=0
