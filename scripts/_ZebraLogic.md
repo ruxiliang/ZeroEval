@@ -75,8 +75,15 @@ bash zero_eval_api.sh -d zebra-grid -f google -m google/gemini-1.5-pro-exp-0827 
 
 
 
-bash zero_eval_api.sh -d zebra-grid -f openai -m "openai/o3-mini-2025-01-31-high" -p "o3-mini-2025-01-31-high" -s 1
+bash zero_eval_api.sh -d zebra-grid -f openai -m "openai/o3-mini-2025-01-31-high" -p "o3-mini-2025-01-31-high" -s 8
 bash zero_eval_api.sh -d zebra-grid -f openai -m "openai/o3-mini-2025-01-31-medium" -p "o3-mini-2025-01-31-medium" -s 8
 bash zero_eval_api.sh -d zebra-grid -f openai -m "openai/o3-mini-2025-01-31-low" -p "o3-mini-2025-01-31-low" -s 8
 ```
 
+
+
+## Performance
+
+```bash
+python src/evaluation/zebra_grid_eval.py
+```
