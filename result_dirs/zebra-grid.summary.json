@@ -1,5 +1,22 @@
 [
   {
+    "Model": "grok-3-mini-fast-beta-high",
+    "Mode": "greedy",
+    "Puzzle Acc": "92.60",
+    "Cell Acc": "94.63",
+    "No answer": "1.00",
+    "Easy Puzzle Acc": "98.93",
+    "Hard Puzzle Acc": "90.14",
+    "Small Puzzle Acc": "98.75",
+    "Medium Puzzle Acc": "96.43",
+    "Large Puzzle Acc": "93.50",
+    "XL Puzzle Acc": "76.50",
+    "Total Puzzles": 1000,
+    "Reason Lens": "782.25",
+    "N_Mode": "single",
+    "N_Size": 1
+  },
+  {
     "Model": "o3-mini-2025-01-31-high",
     "Mode": "greedy",
     "Puzzle Acc": "91.70",
@@ -47,6 +64,23 @@
     "XL Puzzle Acc": "42.50",
     "Total Puzzles": 1000,
     "Reason Lens": "1197.51",
+    "N_Mode": "single",
+    "N_Size": 1
+  },
+  {
+    "Model": "grok-3-mini-fast-beta-low",
+    "Mode": "greedy",
+    "Puzzle Acc": "80.70",
+    "Cell Acc": "84.22",
+    "No answer": "0.00",
+    "Easy Puzzle Acc": "98.57",
+    "Hard Puzzle Acc": "73.75",
+    "Small Puzzle Acc": "98.75",
+    "Medium Puzzle Acc": "96.43",
+    "Large Puzzle Acc": "77.00",
+    "XL Puzzle Acc": "33.50",
+    "Total Puzzles": 1000,
+    "Reason Lens": "874.09",
     "N_Mode": "single",
     "N_Size": 1
   },

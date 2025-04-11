@@ -333,6 +333,7 @@ def openai_chat_request(
     else:
         nvidia_mode = False
         o1_mode = False
+        xai_mode = False
         # for version > 1.0
         if "deepseek" in model:
             assert (
@@ -389,9 +390,11 @@ def openai_chat_request(
             model = model.replace("@lepton", "")
             # print(model, client.api_key, client.base_url)
         elif model.endswith("@xai"):
+            xai_mode = True
             assert (
                 os.environ.get("XAI_API_KEY") is not None
             ), "Please set XAI_API_KEY in the environment variables."
+
             client = OpenAI(
                 api_key=os.environ.get("XAI_API_KEY"),
                 base_url="https://api.x.ai/v1",
@@ -415,6 +418,24 @@ def openai_chat_request(
                 # n=n,
                 # stop=stop,
                 **kwargs,
+            )
+        elif xai_mode:
+            reasoning_effort = None
+            if model.startswith("grok-3-mini"):
+                if "high" in model:
+                    reasoning_effort = "high"
+                    model = model.replace("-high", "")
+                elif "low" in model:
+                    reasoning_effort = "low"
+                    model = model.replace("-low", "")
+                else:
+                    raise ValueError("You should specify the reasoning effort for grok-3-mini-beta. e.g. grok-3-mini-beta-high or grok-3-mini-beta-low")
+            assert model in ["grok-3-mini-beta", "grok-3-mini-fast-beta", "grok-2-1212", "grok-3-beta", "grok-3-fast-beta"], f"Model {model} is not supported"
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=0.7,
+                reasoning_effort=reasoning_effort,
             )
         else:
             # print(f"Requesting chat completion from OpenAI API with model {model}")
