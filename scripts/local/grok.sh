@@ -14,3 +14,7 @@ bash zero_eval_api.sh -f openai -d zebra-grid -m grok-3-mini-fast-beta-low@xai -
 wait
 bash zero_eval_api.sh -f openai -d zebra-grid -m grok-3-mini-fast-beta-high@xai -p grok-3-mini-fast-beta-high -s 16
 wait
+
+
+bash zero_eval_api.sh -f openai -d zebra-grid -m grok-3-fast-beta@xai -p grok-3-fast-beta -s 16
+wait
