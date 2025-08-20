@@ -56,6 +56,7 @@ def parse_args():
 
     parser.add_argument('--use_hf_conv_template', action='store_true')
     parser.add_argument('--use_imend_stop', action='store_true')
+    parser.add_argument('--disable_thinking', action='store_true')
 
     # only for MT-bench; not useful for other benchmarks
     # parser.add_argument('--cot', type=str, default="True")
