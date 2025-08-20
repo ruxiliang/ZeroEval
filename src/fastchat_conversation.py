@@ -8,7 +8,7 @@ from enum import auto, IntEnum
 from typing import List, Any, Dict, Union, Tuple
 from transformers import AutoTokenizer
 from global_configs import HF_TEMPLATED_MODELS
-
+from pathlib import Path
 def map_to_conv(model_name):
     if model_name in HF_TEMPLATED_MODELS:
         print(f"Model {model_name} is using HF chat-template method.")
@@ -61,9 +61,17 @@ class HF_Conversation:
         # We only append the message if it is not None.  
         
 
-    def get_prompt(self):
+    def get_prompt(self, args=None):
         # add_generation_prompt is True so we don't have to add the generation prompt manually
-        full_prompt = self.hf_tokenizer.apply_chat_template(self.messages, tokenize=False, add_generation_prompt=True)
+        # we need to check that whether this model is qwen3
+        enable_thinking = False
+        is_qwen3_variant = False
+        if args is not None:
+            model_exact_name = Path(args.model_name).stem
+            # disable thinking via prompt control is only available with qwen3 for now
+            is_qwen3_variant = 'qwen3' in model_exact_name or 'Qwen3' in model_exact_name
+            enable_thinking = is_qwen3_variant and (not args.disable_thinking)
+        full_prompt = self.hf_tokenizer.apply_chat_template(self.messages, tokenize=False, add_generation_prompt=True) if not is_qwen3_variant else self.hf_tokenizer.apply_chat_template(self.messages, tokenize=False, add_generation_prompt=True, enable_thinking=enable_thinking)
         return full_prompt
     
     def clear(self):
@@ -121,7 +129,7 @@ class Conversation:
     # Stops generation if meeting any token in this list
     stop_token_ids: List[int] = None
 
-    def get_prompt(self) -> str:
+    def get_prompt(self, args=None) -> str:
         """Get the prompt for generation."""
         system_prompt = self.system_template.format(system_message=self.system_message)
         if self.sep_style == SeparatorStyle.ADD_COLON_SINGLE:
