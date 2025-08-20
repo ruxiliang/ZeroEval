@@ -1,5 +1,5 @@
 from datasets import load_dataset
-from _TEMPLATES import apply_mc_template, apply_lgp_grid_template, apply_oeqa_template, apply_gplanet_template
+from _TEMPLATES import apply_mc_template, apply_lgp_grid_template, apply_oeqa_template, apply_gplanet_template, apply_math_template
 
 def mapping_task_names(data_name):
     """
@@ -20,6 +20,8 @@ def mapping_task_names(data_name):
         dataset = load_dataset("flydust/zero-eval", "crux", split="test")
     elif data_name == "math-l5":
         dataset = load_dataset("AI-MO/aimo-validation-math-level-5", split="train")
+    elif data_name == 'math-500':
+        dataset = load_dataset("HuggingFaceH4/MATH-500", split="test")
     elif data_name == "wildbench_v2-hard":
         dataset = load_dataset("allenai/WildBench", "v2-hard", split="test")
         id_name = "session_id"
@@ -40,7 +42,10 @@ def prompt_generation(data_name, data_item, args):
     elif data_name in ["wildbench_v2-hard"]:
         prompt = data_item["conversation_input"][0]["content"]
     elif data_name in ["zebra-grid"]:
-        prompt = apply_lgp_grid_template(data_item) 
+        prompt = apply_lgp_grid_template(data_item)
+    elif data_name in ['math-500']:
+        question_key = 'problem'
+        prompt = apply_math_template(data_item, question_key = question_key)
     elif data_name in ["gsm", "math-l5"]:
         question_key = "question"
         if data_name == "math-l5":

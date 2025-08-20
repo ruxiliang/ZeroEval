@@ -5,6 +5,7 @@ from templates.ZEBRA_GRID import ZEBRA_GRID
 from templates.MCQA import MCQA
 from templates.OEQA import OEQA, OEQA_DIRECT
 from templates.GPLANET import GPLANET
+from templates.MATH import MATH
 
 def generate_choice_string(choices):
     choice_string = ""
@@ -26,6 +27,12 @@ def apply_oeqa_template(item, question_key="question", cot=True):
         prompt_str = OEQA[:]
     else:
         prompt_str = OEQA_DIRECT[:]
+    prompt_str = prompt_str.replace("{question}", question)
+    return prompt_str
+
+def apply_math_template(item, question_key="question"):
+    question = item[question_key]
+    prompt_str = MATH[:]
     prompt_str = prompt_str.replace("{question}", question)
     return prompt_str
 
