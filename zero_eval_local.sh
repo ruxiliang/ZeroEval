@@ -7,21 +7,33 @@ HF_HUB_ENABLE_HF_TRANSFER=1
 DATA_NAME=""
 model_name=""
 model_pretty_name=""
-n_shards=1
+n_shards=0
 run_name="default"
 TEMP=0
 TOP_P=1.0
 rp=1.0
 engine_name="vllm"
 batch_size=4
+dp_size=1
+tp_size=1
+n_samples=1
+TOP_K=20
 
-gpu_memory_utilization=0.95
+gpu_memory_utilization=0.9
 
 MAX_TOKENS=4096; 
 
 # Parse named arguments
-while getopts ":d:m:p:s:r:t:o:e:f:b:x:" opt; do
+while getopts ":d:m:p:s:r:t:o:e:f:b:x:e:g:n:a:" opt; do
   case $opt in
+    e) dp_size="$OPTARG"
+    ;;
+    g) tp_size="$OPTARG"
+    ;;
+    a) top_k="$OPTARG"
+    ;;
+    n) n_samples="$OPTARG"
+    ;;
     d) DATA_NAME="$OPTARG"
     ;;
     m) model_name="$OPTARG"
@@ -152,6 +164,35 @@ elif [ $n_shards -gt 1 ]; then
     wait 
     python src/merge_results.py $shards_dir/ $model_pretty_name
     cp $shards_dir/${model_pretty_name}.json $output_dir/${model_pretty_name}.json
+
+# since sglang itself supports dp and tp, we can specify it in the args
+elif [ $n_shards -eq 0 ]; then
+    # gpu="0,1,2,3"; num_gpus=4; # change the number of gpus to your preference
+    # echo "n_shards = 1"
+    num_gpus=$(nvidia-smi --query-gpu=count --format=csv,noheader | head -n 1)
+    # gpu= # from 0 to the last gpu id
+    gpu=$(seq -s, 0 $((num_gpus - 1)))
+
+    echo "n_shards = 0; num_gpus = $num_gpus; gpu = $gpu; dp_size = $dp_size; tp_size = $tp_size"
+    CUDA_VISIBLE_DEVICES=$gpu \
+    python src/unified_infer.py \
+        --engine $engine_name \
+        --data_name $DATA_NAME \
+        --model_name $model_name \
+        --run_name $run_name \
+        --gpu_memory_utilization $gpu_memory_utilization \
+        --max_model_len $max_model_len \
+        --use_hf_conv_template --use_imend_stop \
+        --download_dir $CACHE_DIR \
+        --data_parallel_size $dp_size \
+        --tensor_parallel_size $tp_size \
+        --num_outputs $n_samples \
+        --dtype bfloat16 \
+        --model_pretty_name $model_pretty_name \
+        --top_p $TOP_P --temperature $TEMP --top_k $TOP_K --num_outputs $n_samples \
+        --repetition_penalty $rp \
+        --batch_size $batch_size --max_tokens $MAX_TOKENS \
+        --output_folder $output_dir/  
 else
     echo "Invalid n_shards"
     exit

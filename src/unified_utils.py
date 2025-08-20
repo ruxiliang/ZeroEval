@@ -41,7 +41,7 @@ def apply_template(chat_history, model_name, args):
     model_inputs = []
     conv = None
     for chats in tqdm(chat_history, desc="Applying template", disable=True):
-        if args.engine not in ["vllm", "hf"]:
+        if args.engine not in ["vllm", "hf", "sgl"]:
             model_inputs.append("n/a")  # will be handled by another ways.
             continue
         else:

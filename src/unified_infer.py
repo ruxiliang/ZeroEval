@@ -11,6 +11,7 @@ from global_configs import HF_TEMPLATED_MODELS, IM_END_MODELS
 from unified_utils import openai_chat_request, retry_handler, google_chat_request, cohere_chat_request, mistral_chat_request, anthropic_chat_request, together_chat_request, reka_chat_request
 from hf_models import DecoderOnlyModelManager
 from transformers import AutoTokenizer
+import numpy as np
 
 # import multiprocessing as mp
 # mp.set_start_method('spawn', force=True)
@@ -24,6 +25,8 @@ def parse_args():
     parser.add_argument('--model_pretty_name', default=None, type=str)
     parser.add_argument('--tokenizer_name', default="auto", type=str)
     parser.add_argument('--tensor_parallel_size', type=int, default=1)
+    parser.add_argument('--data_parallel_size', type=int, default=1)
+    parser.add_argument('--top_k', type=int, default=20)
     parser.add_argument('--dtype', type=str, default="auto")
     parser.add_argument('--tokenizer_mode', type=str, default="auto")
     parser.add_argument('--data_name', default="wild_bench", type=str)
@@ -116,6 +119,15 @@ if __name__ == "__main__":
                         gpu_memory_utilization=args.gpu_memory_utilization,
                         enable_lora=lora_request is not None
                         )
+    elif args.engine == 'sgl':
+        import sglang as sgl
+        max_model_len = None if args.max_model_len == -1 else args.max_model_len
+        base_model_name_or_path, lora_model_name_or_path = infer_maybe_lora(args.model_name)
+        # TODO: add lora support
+        assert lora_model_name_or_path is None, "Currently we do not add lora support since lora is off-topic for now"
+        llm = sgl.Engine(model_path=base_model_name_or_path, tokenizer_path=args.tokenizer_name, tp_size=args.tensor_parallel_size, dp_size=args.data_parallel_size,
+                         download_dir=args.download_dir, dtype=args.dtype, tokenizer_mode=args.tokenizer_mode, 
+                         context_length=max_model_len, trust_remote_code=True, mem_fraction_static=args.gpu_memory_utilization)
     elif args.engine == "hf":
         llm = DecoderOnlyModelManager(args.model_name, args.model_name, cache_dir=args.download_dir,
                                     bf16=args.hf_bf16, gptq=args.hf_gptq)
@@ -245,7 +257,31 @@ if __name__ == "__main__":
             outputs.extend([[o.text for o in x.outputs] for x in batch_outputs]) # TODO: enbale multiple generation
             save_outputs(args, id_strs, outputs, chat_history, metadata, model_inputs, filepath)
         save_outputs(args, id_strs, outputs, chat_history, metadata, model_inputs, filepath)
-
+    elif args.engine == 'sgl':
+        sampling_params = {
+            "top_p": args.top_p,
+            "top_k": args.top_k,
+            "temperature": args.temperature,
+            "repetition_penalty": args.repetition_penalty,
+            "max_new_tokens": args.max_tokens,
+            "stop": stop_words,
+            "stop_token_ids": stop_token_ids,
+            "no_stop_trim": include_stop_str_in_output
+        }
+        # in sglang they do not recommend use `n` in sampling params
+        # so replicate input n times instead
+        for cur_id in tqdm(range(0, len(todo_inputs), args.batch_size), desc=f"Generating {args.model_name} from {args.start_index} to {args.end_index}"):
+            batch_inputs = todo_inputs[cur_id:cur_id+args.batch_size]
+            # replicate input
+            batch_inputs_replicate = [[batch_input] * args.num_outputs for batch_input in batch_inputs]
+            batch_inputs_concat = np.concatenate(batch_inputs_replicate)
+            batch_inputs = batch_inputs_concat.tolist()
+            batch_outputs = llm.generate(batch_inputs, sampling_params)
+            # recover to 1 prompt - n_samples response layout
+            batch_outputs = np.array([x['text'] for x in batch_outputs]).reshape(-1, args.num_outputs).tolist()
+            outputs.extend(batch_outputs)
+            save_outputs(args, id_strs, outputs, chat_history, metadata, model_inputs, filepath)
+        save_outputs(args, id_strs, outputs, chat_history, metadata, model_inputs, filepath)
     elif args.engine == "hf":
         for cur_id in tqdm(range(0, len(todo_inputs), args.batch_size), desc=f"Generating {args.model_name} from {args.start_index} to {args.end_index} on {args.data_name}"):
             batch_inputs = todo_inputs[cur_id:cur_id+args.batch_size]
